@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+  app:
+    build: docker/app
+    volumes:
+      - "./:/app"
+    working_dir: /app
+    env_file: .env
+    command: python -m bot
+
+  test:
+    build: docker/test
+    volumes:
+      - "./:/app"
+    working_dir: /app
