@@ -6,7 +6,7 @@ from telegram.ext import (Updater, CallbackContext, CommandHandler)
 
 def echo(update: Update, context: CallbackContext):
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="Click here: <a href=\"tel://112\">112</a>", parse_mode="HTML")
+        chat_id=update.effective_chat.id, text=update.message.text)
 
 
 def start(update: Update, context: CallbackContext):
