@@ -16,4 +16,4 @@ jobs:
         run: rsync -rav --delete bot deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot/
       - name: Install Systemd service
         run: |
-          sudo systemctl restart ban_mod_bot.service
+          ssh deploy@${{ secrets.DEPLOY_SERVER }} "sudo systemctl restart ban_mod_bot.service"
