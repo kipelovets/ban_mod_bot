@@ -13,7 +13,7 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.DEPLOY_SERVER }}" >> ~/.ssh/known_hosts
       - name: Deploy with rsync
-        run: rsync -rav --delete build/ deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot
+        run: rsync -rav --delete bot deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot/
       - name: Install Systemd service
         run: |
           cp /app/ban_mod_bot/etc/systemd/ban_mod_bot.service /etc/systemd/system/
