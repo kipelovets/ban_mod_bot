@@ -16,5 +16,4 @@ jobs:
         run: rsync -rav --delete bot deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot/
       - name: Install Systemd service
         run: |
-          cp /app/ban_mod_bot/etc/systemd/ban_mod_bot.service /etc/systemd/system/
           sudo systemctl restart ban_mod_bot.service
