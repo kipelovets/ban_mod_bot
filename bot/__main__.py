@@ -27,8 +27,7 @@ def main():
     print(data)
 
     executor.start_polling(dp,
-        allowed_updates=["message", "chat_member", "my_chat_member"])
-
+        allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY)
 
 if __name__ == "__main__":
     main()
