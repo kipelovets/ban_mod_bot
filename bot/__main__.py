@@ -1,10 +1,10 @@
 import logging
 import os
 import sys
-from telegram import (Bot, Update)
-from telegram.ext import (Updater, CallbackContext,
-                          CommandHandler, Filters, MessageHandler, ChatMemberHandler)
-from .handlers import (start, echo, chat_member, my_member)
+
+from aiogram import Bot, Dispatcher, executor, types
+from .storage import load
+from .dispatcher import configure_dispatcher
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -12,20 +12,21 @@ logging.basicConfig(level=logging.DEBUG,
 
 def main():
     token = os.getenv('TELEGRAM_TOKEN')
-    if token is None:
-        print("Error: token not defined")
+    api_key = os.getenv('AIRTABLE_API_KEY')
+    base_id = os.getenv('AIRTABLE_BASE_ID')
+    table_name = os.getenv('AIRTABLE_TABLE_NAME')
+    if token is None or api_key is None or base_id is None or table_name is None:
+        print("Error: required env vars not defined")
         sys.exit(1)
 
-    updater = Updater(token=token)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(MessageHandler(
-        Filters.text & (~Filters.command), echo))
-    dispatcher.add_handler(ChatMemberHandler(callback=chat_member,
-                                             chat_member_types=ChatMemberHandler.CHAT_MEMBER))
-    dispatcher.add_handler(ChatMemberHandler(callback=my_member,
-                                             chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER))
-    updater.start_polling(
+    bot = Bot(token=token)
+    dp = Dispatcher(bot)
+    configure_dispatcher(dp)
+
+    data = load(api_key, base_id, table_name)
+    print(data)
+
+    executor.start_polling(dp,
         allowed_updates=["message", "chat_member", "my_chat_member"])
 
 
