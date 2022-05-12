@@ -11,7 +11,7 @@ def echo(update: Update, context: CallbackContext):
 
 def start(update: Update, context: CallbackContext):
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="Hello, I'm a bot v2")
+        chat_id=update.effective_chat.id, text="Hello, I'm a bot v3")
 
 def delete_join_messages():
     pass
