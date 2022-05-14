@@ -21,13 +21,13 @@ def main():
 
     bot = Bot(token=token)
     dp = Dispatcher(bot)
-    configure_dispatcher(dp)
 
     data = load(api_key, base_id, table_name)
-    print(data)
+    configure_dispatcher(dp, data)
 
     executor.start_polling(dp,
-        allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY)
+                           allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY)
+
 
 if __name__ == "__main__":
     main()
