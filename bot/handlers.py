@@ -101,6 +101,8 @@ def make_choose_translator(data: TranslatorsData):
 
         keyboard.add(types.InlineKeyboardButton(text="Следующий переводчик",
                      callback_data=make_cb(call.from_user.id, from_lang, to_lang, translator)))
+        keyboard.add(types.InlineKeyboardButton(
+            "Назад", callback_data=make_cb(call.from_user.id, from_lang)))
         await call.message.edit_text(f"Привет @{format_name(call.from_user)}!\nСледующий переводчик для пары {from_lang} - {to_lang}: {translator}", reply_markup=keyboard)
 
     return choose_translator
