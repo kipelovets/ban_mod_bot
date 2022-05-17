@@ -38,7 +38,17 @@ async def echo(message: types.Message):
 
 
 async def start(message: types.Message):
-    await message.answer(format_from_language_message(format_name(message.from_user)), reply_markup=format_from_language_keyboard(message.from_user.id))
+    await message.answer(
+        format_from_language_message(format_name(message.from_user)),
+        reply_markup=format_from_language_keyboard(message.from_user.id))
+
+
+async def welcome(chat_member: types.ChatMemberUpdated):
+    user = chat_member.new_chat_member.user
+    await chat_member.bot.send_message(chat_member.chat.id,
+                                       format_from_language_message(
+                                           format_name(user)),
+                                       reply_markup=format_from_language_keyboard(user.id))
 
 
 async def select_from_language(call: types.CallbackQuery, callback_data: dict):

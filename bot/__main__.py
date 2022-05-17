@@ -26,7 +26,7 @@ def main():
     configure_dispatcher(dp, data)
 
     executor.start_polling(dp,
-                           allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY)
+                           allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY + types.AllowedUpdates.CHAT_MEMBER)
 
 
 if __name__ == "__main__":
