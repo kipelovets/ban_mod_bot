@@ -16,7 +16,7 @@ jobs:
           MESSAGE: ${{ github.event.client_payload.message }}
         run: echo $MESSAGE > telegram_bot.py
       - name: Deploy with rsync
-        run: rsync -rav bot deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot/
+        run: rsync -rav * deploy@${{ secrets.DEPLOY_SERVER }}:/app/ban_mod_bot/
       - name: Restart Systemd service
         run: |
           ssh deploy@${{ secrets.DEPLOY_SERVER }} "sudo systemctl restart ban_mod_bot.service"
