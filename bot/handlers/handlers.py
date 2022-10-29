@@ -7,42 +7,48 @@ from bot.language import lang_by_code
 from bot.storage import TranslatorsData
 
 
-async def echo(message: types.Message):
-    await message.answer(message.text)
+class Handler:
+
+    data: TranslatorsData
+
+    def __init__(self, data: TranslatorsData) -> None:
+        self.data = data
+
+    async def echo(self, message: types.Message):
+        await message.answer(message.text)
 
 
-async def start(message: types.Message):
-    await message.answer(
-        format_from_language_message(format_name(message.from_user)),
-        reply_markup=format_from_language_keyboard(message.from_user.id))
+    async def start(self, message: types.Message):
+        await message.answer(
+            format_from_language_message(format_name(message.from_user)),
+            reply_markup=format_from_language_keyboard(message.from_user.id))
 
 
-async def welcome(chat_member: types.ChatMemberUpdated):
-    user = chat_member.new_chat_member.user
-    await chat_member.bot.send_message(chat_member.chat.id,
-                                       format_from_language_message(
-                                           format_name(user)),
-                                       reply_markup=format_from_language_keyboard(user.id))
+    async def welcome(self, chat_member: types.ChatMemberUpdated):
+        user = chat_member.new_chat_member.user
+        await chat_member.bot.send_message(chat_member.chat.id,
+                                        format_from_language_message(
+                                            format_name(user)),
+                                        reply_markup=format_from_language_keyboard(user.id))
 
 
-async def select_from_language(call: types.CallbackQuery, callback_data: dict):
-    user_id = int(callback_data["user_id"])
-    if user_id != call.from_user.id:
-        await call.answer("Вы не можете отвечать на чужое сообщение!")
-        return
-    await call.message.edit_text(format_from_language_message(format_name(call.from_user)),
-                                 reply_markup=format_from_language_keyboard(call.from_user.id))
+    async def select_from_language(self, call: types.CallbackQuery, callback_data: dict):
+        user_id = int(callback_data["user_id"])
+        if user_id != call.from_user.id:
+            await call.answer("Вы не можете отвечать на чужое сообщение!")
+            return
+        await call.message.edit_text(format_from_language_message(format_name(call.from_user)),
+                                    reply_markup=format_from_language_keyboard(call.from_user.id))
 
 
-def make_select_language(data: TranslatorsData):
-    async def select_language(call: types.CallbackQuery, callback_data: dict):
+    async def select_language(self, call: types.CallbackQuery, callback_data: dict):
         user_id = int(callback_data["user_id"])
         if user_id != call.from_user.id:
             await call.answer("Вы не можете отвечать на чужое сообщение!")
             return
         from_lang = lang_by_code(callback_data["from_lang"])
 
-        pairs = data.get_language_pairs(from_lang)
+        pairs = self.data.get_language_pairs(from_lang)
         pairs_list = sorted(pairs)
 
         keyboard = types.InlineKeyboardMarkup()
@@ -79,16 +85,13 @@ def make_select_language(data: TranslatorsData):
                     call.from_user.id)))
 
         message = f"""Привет @{format_name(call.from_user)}!
-        Выбранный язык документа: {from_lang}
-        Теперь выберите язык на который нужно перевести: """
+Выбранный язык документа: {from_lang}
+Теперь выберите язык на который нужно перевести:"""
 
         await call.message.edit_text(message, reply_markup=keyboard)
 
-    return select_language
 
-
-def make_choose_translator(data: TranslatorsData):
-    async def choose_translator(call: types.CallbackQuery, callback_data: dict):
+    async def choose_translator(self, call: types.CallbackQuery, callback_data: dict):
         user_id = int(callback_data["user_id"])
         if user_id != call.from_user.id:
             await call.answer("Вы не можете отвечать на чужое сообщение!")
@@ -97,7 +100,7 @@ def make_choose_translator(data: TranslatorsData):
         to_lang = lang_by_code(callback_data["to_lang"])
         prev_translator = callback_data["prev_translator"]
 
-        translator = data.find_next_translator(
+        translator = self.data.find_next_translator(
             from_lang, to_lang, prev_translator)
         keyboard = types.InlineKeyboardMarkup()
         if None is translator:
@@ -129,5 +132,3 @@ def make_choose_translator(data: TranslatorsData):
         message = f"""Привет @{format_name(call.from_user)}!
         Следующий переводчик для пары {from_lang} - {to_lang}: {translator}"""
         await call.message.edit_text(message, reply_markup=keyboard)
-
-    return choose_translator
