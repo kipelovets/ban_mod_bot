@@ -12,9 +12,9 @@ class TranslatorsData:
             langs = rec["fields"]["Языки"]
             if lang not in langs:
                 continue
-            for l in langs:
-                if l != lang:
-                    result.add(l)
+            for other_lang in langs:
+                if other_lang != lang:
+                    result.add(other_lang)
         return result
 
     def find_next_translator(self, lang_from: str, lang_to: str, prev: str = None) -> str:

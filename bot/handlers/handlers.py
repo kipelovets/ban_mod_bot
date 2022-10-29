@@ -1,7 +1,8 @@
 
 from math import floor
 from aiogram import types
-from bot.handlers.utils import format_from_language_keyboard, format_from_language_message, format_name, make_cb
+from bot.handlers.utils import (format_from_language_keyboard,
+                                format_from_language_message, format_name, make_cb)
 from bot.language import lang_by_code
 from bot.storage import TranslatorsData
 
@@ -29,7 +30,8 @@ async def select_from_language(call: types.CallbackQuery, callback_data: dict):
     if user_id != call.from_user.id:
         await call.answer("Вы не можете отвечать на чужое сообщение!")
         return
-    await call.message.edit_text(format_from_language_message(format_name(call.from_user)), reply_markup=format_from_language_keyboard(call.from_user.id))
+    await call.message.edit_text(format_from_language_message(format_name(call.from_user)),
+                                 reply_markup=format_from_language_keyboard(call.from_user.id))
 
 
 def make_select_language(data: TranslatorsData):
@@ -50,18 +52,37 @@ def make_select_language(data: TranslatorsData):
                 second_lang = pairs_list[i * 2 + 1]
                 keyboard.add(
                     types.InlineKeyboardButton(
-                        text=lang, callback_data=make_cb(
-                            call.from_user.id, from_lang, lang)), types.InlineKeyboardButton(
-                        text=second_lang, callback_data=make_cb(
-                            call.from_user.id, from_lang, second_lang)))
+                        text=lang,
+                        callback_data=make_cb(
+                            call.from_user.id,
+                            from_lang,
+                            lang)),
+                    types.InlineKeyboardButton(
+                        text=second_lang,
+                        callback_data=make_cb(
+                            call.from_user.id,
+                            from_lang,
+                            second_lang)))
             else:
-                keyboard.add(types.InlineKeyboardButton(text=lang, callback_data=make_cb(
-                    call.from_user.id, from_lang, lang)))
+                keyboard.add(
+                    types.InlineKeyboardButton(
+                        text=lang,
+                        callback_data=make_cb(
+                            call.from_user.id,
+                            from_lang,
+                            lang)))
 
-        keyboard.add(types.InlineKeyboardButton(
-            text="Назад", callback_data=make_cb(call.from_user.id)))
+        keyboard.add(
+            types.InlineKeyboardButton(
+                text="Назад",
+                callback_data=make_cb(
+                    call.from_user.id)))
 
-        await call.message.edit_text(f"Привет @{format_name(call.from_user)}!\nВыбранный язык документа: {from_lang}\nТеперь выберите язык на который нужно перевести: ", reply_markup=keyboard)
+        message = f"""Привет @{format_name(call.from_user)}!
+        Выбранный язык документа: {from_lang}
+        Теперь выберите язык на который нужно перевести: """
+
+        await call.message.edit_text(message, reply_markup=keyboard)
 
     return select_language
 
@@ -80,15 +101,33 @@ def make_choose_translator(data: TranslatorsData):
             from_lang, to_lang, prev_translator)
         keyboard = types.InlineKeyboardMarkup()
         if None is translator:
-            keyboard.add(types.InlineKeyboardButton(
-                text="Назад", callback_data=make_cb(call.from_user.id, from_lang)))
-            await call.message.edit_text(f"Привет @{format_name(call.from_user)}!\nК сожалению у нас нет переводчиков для пары {from_lang} - {to_lang}", reply_markup=keyboard)
+            keyboard.add(
+                types.InlineKeyboardButton(
+                    text="Назад",
+                    callback_data=make_cb(
+                        call.from_user.id,
+                        from_lang)))
+            message = f"""Привет @{format_name(call.from_user)}!
+            К сожалению у нас нет переводчиков для пары {from_lang} - {to_lang}"""
+            await call.message.edit_text(message, reply_markup=keyboard)
             return
 
-        keyboard.add(types.InlineKeyboardButton(text="Следующий переводчик",
-                     callback_data=make_cb(call.from_user.id, from_lang, to_lang, translator)))
-        keyboard.add(types.InlineKeyboardButton(
-            "Назад", callback_data=make_cb(call.from_user.id, from_lang)))
-        await call.message.edit_text(f"Привет @{format_name(call.from_user)}!\nСледующий переводчик для пары {from_lang} - {to_lang}: {translator}", reply_markup=keyboard)
+        keyboard.add(
+            types.InlineKeyboardButton(
+                text="Следующий переводчик",
+                callback_data=make_cb(
+                    call.from_user.id,
+                    from_lang,
+                    to_lang,
+                    translator)))
+        keyboard.add(
+            types.InlineKeyboardButton(
+                "Назад",
+                callback_data=make_cb(
+                    call.from_user.id,
+                    from_lang)))
+        message = f"""Привет @{format_name(call.from_user)}!
+        Следующий переводчик для пары {from_lang} - {to_lang}: {translator}"""
+        await call.message.edit_text(message, reply_markup=keyboard)
 
     return choose_translator

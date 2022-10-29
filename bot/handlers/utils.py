@@ -1,6 +1,7 @@
-from bot.language import code_by_lang, lang_by_code
-from aiogram.utils.callback_data import CallbackData
 from aiogram import types
+from aiogram.utils.callback_data import CallbackData
+
+from bot.language import code_by_lang
 
 from_languages = ["украинский", "русский"]
 cb = CallbackData("l", "user_id", "from_lang",

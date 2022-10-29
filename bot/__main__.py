@@ -20,13 +20,13 @@ def main():
         sys.exit(1)
 
     bot = Bot(token=token)
-    dp = Dispatcher(bot)
+    dispatcher = Dispatcher(bot)
 
     data = load(api_key, base_id, table_name)
-    configure_dispatcher(dp, data)
+    configure_dispatcher(dispatcher, data)
 
     executor.start_polling(
-        dp,
+        dispatcher,
         allowed_updates=types.AllowedUpdates.MESSAGE +
         types.AllowedUpdates.CALLBACK_QUERY +
         types.AllowedUpdates.CHAT_MEMBER)

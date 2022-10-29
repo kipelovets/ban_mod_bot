@@ -33,7 +33,8 @@ async def test_handler_welcome():
     bot_mock.send_message.assert_called_once()
     assert 2 == len(bot_mock.send_message.call_args.args)
     assert chat_member_mock.chat.id == bot_mock.send_message.call_args.args[0]
-    assert 'Привет @Joss!\nВыберите язык с которого нужно перевести' == bot_mock.send_message.call_args.args[1]
+    expected_message = 'Привет @Joss!\nВыберите язык с которого нужно перевести'
+    assert expected_message == bot_mock.send_message.call_args.args[1]
     assert 1 == len(bot_mock.send_message.call_args.kwargs)
     markup = bot_mock.send_message.call_args.kwargs["reply_markup"]
     assert isinstance(markup, types.InlineKeyboardMarkup)
