@@ -25,8 +25,11 @@ def main():
     data = load(api_key, base_id, table_name)
     configure_dispatcher(dp, data)
 
-    executor.start_polling(dp,
-                           allowed_updates=types.AllowedUpdates.MESSAGE + types.AllowedUpdates.CALLBACK_QUERY + types.AllowedUpdates.CHAT_MEMBER)
+    executor.start_polling(
+        dp,
+        allowed_updates=types.AllowedUpdates.MESSAGE +
+        types.AllowedUpdates.CALLBACK_QUERY +
+        types.AllowedUpdates.CHAT_MEMBER)
 
 
 if __name__ == "__main__":

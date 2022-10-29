@@ -5,7 +5,7 @@ test:
 lint:
 		docker-compose run --rm test pylint bot tests
 format:
-		docker-compose run --rm test autopep8 bot tests
+		docker-compose run --rm test autopep8 bot tests --in-place -r -a -a -a
 build:
 		docker-compose build
 

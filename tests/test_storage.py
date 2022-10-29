@@ -34,7 +34,7 @@ def test_get_language_pairs():
 
 def find_next_translator():
     data = make_test_data()
-    assert None == data.find_next_translator("русский", "немецкий")
+    assert None is data.find_next_translator("русский", "немецкий")
     assert "@test" == data.find_next_translator("русский", "английский")
     assert "@test2" == data.find_next_translator(
         "русский", "английский", "@test")

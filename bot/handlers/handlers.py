@@ -41,16 +41,19 @@ def make_select_language(data: TranslatorsData):
         from_lang = lang_by_code(callback_data["from_lang"])
 
         pairs = data.get_language_pairs(from_lang)
-        pairs_list = list(pairs)
-        pairs_list.sort()
+        pairs_list = sorted(pairs)
 
         keyboard = types.InlineKeyboardMarkup()
-        for i in range(0, floor(len(pairs_list)/2)):
-            lang = pairs_list[i*2]
-            if i*2+1 < len(pairs_list):
-                second_lang = pairs_list[i*2+1]
-                keyboard.add(types.InlineKeyboardButton(text=lang, callback_data=make_cb(call.from_user.id, from_lang, lang)),
-                             types.InlineKeyboardButton(text=second_lang, callback_data=make_cb(call.from_user.id, from_lang, second_lang)))
+        for i in range(0, floor(len(pairs_list) / 2)):
+            lang = pairs_list[i * 2]
+            if i * 2 + 1 < len(pairs_list):
+                second_lang = pairs_list[i * 2 + 1]
+                keyboard.add(
+                    types.InlineKeyboardButton(
+                        text=lang, callback_data=make_cb(
+                            call.from_user.id, from_lang, lang)), types.InlineKeyboardButton(
+                        text=second_lang, callback_data=make_cb(
+                            call.from_user.id, from_lang, second_lang)))
             else:
                 keyboard.add(types.InlineKeyboardButton(text=lang, callback_data=make_cb(
                     call.from_user.id, from_lang, lang)))
@@ -76,7 +79,7 @@ def make_choose_translator(data: TranslatorsData):
         translator = data.find_next_translator(
             from_lang, to_lang, prev_translator)
         keyboard = types.InlineKeyboardMarkup()
-        if None == translator:
+        if None is translator:
             keyboard.add(types.InlineKeyboardButton(
                 text="Назад", callback_data=make_cb(call.from_user.id, from_lang)))
             await call.message.edit_text(f"Привет @{format_name(call.from_user)}!\nК сожалению у нас нет переводчиков для пары {from_lang} - {to_lang}", reply_markup=keyboard)

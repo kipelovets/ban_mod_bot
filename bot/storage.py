@@ -10,7 +10,7 @@ class TranslatorsData:
         result = set()
         for rec in self.data:
             langs = rec["fields"]["Языки"]
-            if not lang in langs:
+            if lang not in langs:
                 continue
             for l in langs:
                 if l != lang:
@@ -23,12 +23,12 @@ class TranslatorsData:
         found_prev = False
         for rec in self.data:
             langs = rec["fields"]["Языки"]
-            if not lang_from in langs or not lang_to in langs:
+            if lang_from not in langs or lang_to not in langs:
                 continue
-            if prev != None and rec["fields"]["Телеграм-аккаунт"] == prev:
+            if prev is not None and rec["fields"]["Телеграм-аккаунт"] == prev:
                 found_prev = True
                 continue
-            if prev != None and not found_prev:
+            if prev is not None and not found_prev:
                 continue
             return rec["fields"]["Телеграм-аккаунт"]
         return None

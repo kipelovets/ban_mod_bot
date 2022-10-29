@@ -1,18 +1,19 @@
 from unittest.mock import AsyncMock, Mock
-from bot.handlers import (echo, start)
-from bot.handlers.handlers import welcome
+
 from aiogram import types
 
+from bot.handlers import echo, start
+from bot.handlers.handlers import welcome
 
-text_mock = "test123"
-id_mock = 123
-name_mock = "Joss"
+TEXT = "test123"
+ID = 123
+NAME = "Joss"
 
 
 async def test_echo_handler():
-    message_mock = AsyncMock(text=text_mock)
+    message_mock = AsyncMock(text=TEXT)
     await echo(message=message_mock)
-    message_mock.answer.assert_called_once_with(text_mock)
+    message_mock.answer.assert_called_once_with(TEXT)
 
 
 async def test_handler_start():
@@ -25,7 +26,7 @@ async def test_handler_welcome():
     user_mock = create_mock_user()
     new_chat_member_mock = Mock(user=user_mock)
     bot_mock = AsyncMock()
-    chat_mock = Mock(id=id_mock)
+    chat_mock = Mock(id=ID)
     chat_member_mock = Mock(
         new_chat_member=new_chat_member_mock, bot=bot_mock, chat=chat_mock)
     await welcome(chat_member=chat_member_mock)
@@ -44,4 +45,4 @@ async def test_handler_welcome():
 
 
 def create_mock_user() -> types.User:
-    return Mock(id=id_mock, username=name_mock, full_name=name_mock)
+    return Mock(id=ID, username=NAME, full_name=NAME)
