@@ -3,7 +3,7 @@ from aiogram import Dispatcher
 
 from bot.storage import TranslatorsData
 from .handlers import (make_choose_translator,
-                       make_select_language, select_from_language, start, echo, cb, welcome)
+                       make_select_language, select_from_language, start, cb, welcome)
 
 
 def configure_dispatcher(dispatcher: Dispatcher, data: TranslatorsData):
