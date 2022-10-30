@@ -1,11 +1,14 @@
+import pytest
 from bot.language import code_by_lang, lang_by_code
 
 
 def test_lang_by_code():
     assert "украинский" == lang_by_code("ua")
-    assert None is lang_by_code("BAD CODE")
+    with pytest.raises(ValueError):
+        lang_by_code("BAD CODE")
 
 
 def test_code_by_lang():
     assert "ru" == code_by_lang("русский")
-    assert None is code_by_lang("BAD LANGUAGE")
+    with pytest.raises(ValueError):
+        code_by_lang("BAD LANGUAGE")

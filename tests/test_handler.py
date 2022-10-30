@@ -23,8 +23,10 @@ async def test_start():
     await handler.start(message=message_mock)
     then_answer(
         message_mock, "Привет @Joss!\nВыберите язык с которого нужно перевести", [
-            ["украинский", 'l|123|ua||'],
-            ["русский", 'l|123|ru||'],
+            [types.InlineKeyboardButton(
+                text="украинский", callback_data='l|123|ua||')],
+            [types.InlineKeyboardButton(
+                text="русский", callback_data='l|123|ru||')],
         ])
 
 
@@ -35,8 +37,10 @@ async def test_welcome():
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       'Привет @Joss!\nВыберите язык с которого нужно перевести',
                       [
-                          ["украинский", 'l|123|ua||'],
-                          ["русский", 'l|123|ru||'],
+                          [types.InlineKeyboardButton(
+                              text="украинский", callback_data='l|123|ua||')],
+                          [types.InlineKeyboardButton(
+                              text="русский", callback_data='l|123|ru||')],
                       ])
 
 
@@ -49,8 +53,10 @@ async def test_select_from_language():
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите язык с которого нужно перевести",
                         [
-                            ["украинский", 'l|123|ua||'],
-                            ["русский", 'l|123|ru||'],
+                            [types.InlineKeyboardButton(
+                                text="украинский", callback_data='l|123|ua||')],
+                            [types.InlineKeyboardButton(
+                                text="русский", callback_data='l|123|ru||')],
                         ])
 
 
@@ -70,8 +76,10 @@ async def test_select_language():
     then_message_edited(call.message,
                         expected_message,
                         [
-                            ["английский", 'l|123|ua|en|', "немецкий", 'l|123|ua|de|'],
-                            ["Назад", "1|123|||"],
+                            [types.InlineKeyboardButton(text="английский", callback_data='l|123|ua|en|'), types.InlineKeyboardButton(
+                                text="немецкий", callback_data='l|123|ua|de|')],
+                            [types.InlineKeyboardButton(
+                                text="Назад", callback_data="l|123|||")],
                         ])
 
 
@@ -102,7 +110,8 @@ def given_callback_query() -> Mock:
     return AsyncMock(from_user=given_user())
 
 
-def then_answer(message_mock: AsyncMock, expected_message: str, expected_buttons: list[list[str]]):
+def then_answer(message_mock: AsyncMock, expected_message: str,
+                expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     message_mock.answer.assert_called_once()
     assert 1 == len(message_mock.answer.call_args.args)
     assert expected_message == message_mock.answer.call_args.args[0]
@@ -111,7 +120,8 @@ def then_answer(message_mock: AsyncMock, expected_message: str, expected_buttons
     then_inline_keyboard(markup, expected_buttons)
 
 
-def then_message_edited(message: AsyncMock, expected_message: str, expected_buttons: list[list[str]]) -> None:
+def then_message_edited(message: AsyncMock, expected_message: str,
+                        expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     message.edit_text.assert_called_once()
     assert 1 == len(message.edit_text.call_args.args)
     assert expected_message == message.edit_text.call_args.args[0]
@@ -120,18 +130,21 @@ def then_message_edited(message: AsyncMock, expected_message: str, expected_butt
     then_inline_keyboard(markup, expected_buttons)
 
 
-def then_inline_keyboard(markup: Mock, expected_buttons: list[list[str]]):
+def then_inline_keyboard(markup: Mock,
+                         expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     assert isinstance(markup, types.InlineKeyboardMarkup)
     assert len(expected_buttons) == len(markup.inline_keyboard)
-    for button_index, expected_button in enumerate(expected_buttons):
-        assert 1 == len(markup.inline_keyboard[button_index])
-        button = markup.inline_keyboard[button_index][0]
-        assert expected_button[0] == button.text
-        assert expected_button[1] == button.callback_data
+    for row_index, expected_button_row in enumerate(expected_buttons):
+        assert len(expected_button_row) == len(
+            markup.inline_keyboard[row_index])
+        for col_index, expected_button in enumerate(expected_button_row):
+            button = markup.inline_keyboard[row_index][col_index]
+            assert expected_button.text == button.text
+            assert expected_button.callback_data == button.callback_data
 
 
-def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock,
-                      expected_message: str, expected_buttons: list[list[str]]):
+def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message: str,
+                      expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     bot_mock.send_message.assert_called_once()
     assert 2 == len(bot_mock.send_message.call_args.args)
     assert chat_id == bot_mock.send_message.call_args.args[0]
