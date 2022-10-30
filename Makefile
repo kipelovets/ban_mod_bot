@@ -12,3 +12,5 @@ build:
 coverage:
 		docker-compose run --rm test coverage run -m pytest
 		docker-compose run --rm test coverage report -m
+
+check: lint coverage

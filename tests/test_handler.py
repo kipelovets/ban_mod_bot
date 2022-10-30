@@ -72,15 +72,17 @@ async def test_select_language():
     call = given_callback_query()
     await given_handler().select_language(call, {"user_id": ID, "from_lang": "ua"})
     call.answer.assert_not_called()
-    expected_message = "Привет @Joss!\nВыбранный язык документа: украинский\nТеперь выберите язык на который нужно перевести:"
-    then_message_edited(call.message,
-                        expected_message,
-                        [
-                            [types.InlineKeyboardButton(text="английский", callback_data='l|123|ua|en|'), types.InlineKeyboardButton(
-                                text="немецкий", callback_data='l|123|ua|de|')],
-                            [types.InlineKeyboardButton(
-                                text="Назад", callback_data="l|123|||")],
-                        ])
+    expected_message = """Привет @Joss!
+Выбранный язык документа: украинский
+Теперь выберите язык на который нужно перевести:"""
+    then_message_edited(
+        call.message, expected_message, [
+            [
+                types.InlineKeyboardButton(
+                    text="английский", callback_data='l|123|ua|en|'), types.InlineKeyboardButton(
+                    text="немецкий", callback_data='l|123|ua|de|')], [
+                        types.InlineKeyboardButton(
+                            text="Назад", callback_data="l|123|||")], ])
 
 
 def given_handler() -> Handler:

@@ -1,6 +1,6 @@
 
 from math import floor
-from aiogram import types   
+from aiogram import types
 from bot.handlers.utils import (format_from_language_keyboard,
                                 format_from_language_message, format_name, make_cb)
 from bot.language import lang_by_code
@@ -17,20 +17,17 @@ class Handler:
     async def echo(self, message: types.Message):
         await message.answer(message.text)
 
-
     async def start(self, message: types.Message):
         await message.answer(
             format_from_language_message(format_name(message.from_user)),
             reply_markup=format_from_language_keyboard(message.from_user.id))
 
-
     async def welcome(self, chat_member: types.ChatMemberUpdated):
         user = chat_member.new_chat_member.user
         await chat_member.bot.send_message(chat_member.chat.id,
-                                        format_from_language_message(
-                                            format_name(user)),
-                                        reply_markup=format_from_language_keyboard(user.id))
-
+                                           format_from_language_message(
+                                               format_name(user)),
+                                           reply_markup=format_from_language_keyboard(user.id))
 
     async def select_from_language(self, call: types.CallbackQuery, callback_data: dict):
         user_id = int(callback_data["user_id"])
@@ -38,8 +35,7 @@ class Handler:
             await call.answer("Вы не можете отвечать на чужое сообщение!")
             return
         await call.message.edit_text(format_from_language_message(format_name(call.from_user)),
-                                    reply_markup=format_from_language_keyboard(call.from_user.id))
-
+                                     reply_markup=format_from_language_keyboard(call.from_user.id))
 
     async def select_language(self, call: types.CallbackQuery, callback_data: dict):
         user_id = int(callback_data["user_id"])
@@ -89,7 +85,6 @@ class Handler:
 Теперь выберите язык на который нужно перевести:"""
 
         await call.message.edit_text(message, reply_markup=keyboard)
-
 
     async def choose_translator(self, call: types.CallbackQuery, callback_data: dict):
         user_id = int(callback_data["user_id"])
