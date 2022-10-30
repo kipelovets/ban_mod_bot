@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lingvo-catalogue-bot
+  labels:
+    app: lingvo-catalogue-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lingvo-catalogue-bot
+  template:
+    metadata:
+      labels:
+        app: lingvo-catalogue-bot
+    spec:
+      containers:
+        - name: lingvo-bot
+          image: kipelovets/lingvo_catalogue_bot:latest
+          imagePullPolicy: "Always"
+          resources:
+            requests:
+              cpu: 200m
+          env:
+            - name: TELEGRAM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: lingvo-bot
+                  key: TELEGRAM_TOKEN
+                  optional: false
+            - name: AIRTABLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lingvo-bot
+                  key: AIRTABLE_API_KEY
+                  optional: false
+            - name: AIRTABLE_BASE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: lingvo-bot
+                  key: AIRTABLE_BASE_ID
+                  optional: false
+            - name: AIRTABLE_TABLE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: lingvo-bot
+                  key: AIRTABLE_TABLE_NAME
+                  optional: false

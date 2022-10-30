@@ -14,3 +14,11 @@ coverage:
 		docker-compose run --rm test coverage report -m
 
 check: lint coverage
+
+publish:
+	docker build . -t kipelovets/lingvo_catalogue_bot:latest
+	docker push kipelovets/lingvo_catalogue_bot:latest
+
+deploy:
+	kubectl apply -f k8s/deployment.yaml
+	kubectl rollout restart deployment/lingvo-catalogue-bot
