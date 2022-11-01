@@ -1,5 +1,5 @@
 
-from math import floor
+from math import ceil
 from aiogram import types
 from bot.handlers.utils import (format_from_language_keyboard, format_name, make_cb)
 from bot.language import lang_by_code
@@ -51,7 +51,7 @@ class Handler:
         pairs_list = sorted(pairs)
 
         keyboard = types.InlineKeyboardMarkup()
-        for i in range(0, floor(len(pairs_list) / 2)):
+        for i in range(0, ceil(len(pairs_list) / 2)):
             lang = pairs_list[i * 2]
             if i * 2 + 1 < len(pairs_list):
                 second_lang = pairs_list[i * 2 + 1]
