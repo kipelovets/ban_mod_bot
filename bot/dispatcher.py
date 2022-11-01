@@ -1,12 +1,13 @@
 
 from aiogram import Dispatcher
+from bot.messages import Messages
 
 from bot.storage import TranslatorsData
 from .handlers import (Handler, cb)
 
 
-def configure_dispatcher(dispatcher: Dispatcher, data: TranslatorsData):
-    handler = Handler(data)
+def configure_dispatcher(dispatcher: Dispatcher, data: TranslatorsData, messages: Messages):
+    handler = Handler(data, messages)
 
     dispatcher.register_message_handler(handler.start, commands="translate")
     dispatcher.register_chat_member_handler(handler.welcome)
@@ -16,4 +17,4 @@ def configure_dispatcher(dispatcher: Dispatcher, data: TranslatorsData):
     dispatcher.register_callback_query_handler(
         handler.select_language, cb.filter(to_lang=[""]))
     dispatcher.register_callback_query_handler(
-        handler.choose_translator, cb.filter())
+        handler.select_translator, cb.filter())

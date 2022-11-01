@@ -28,7 +28,3 @@ def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
         keyboard.add(types.InlineKeyboardButton(
             text=lang, callback_data=make_cb(user_id, lang)))
     return keyboard
-
-
-def format_from_language_message(username: str) -> str:
-    return f"Привет @{username}!\nВыберите язык с которого нужно перевести"

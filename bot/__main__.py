@@ -3,6 +3,8 @@ import os
 import sys
 
 from aiogram import Bot, Dispatcher, executor, types
+
+from bot.messages import Messages
 from .storage import load
 from .dispatcher import configure_dispatcher
 
@@ -23,7 +25,8 @@ def main():
     dispatcher = Dispatcher(bot)
 
     data = load(api_key, base_id, table_name)
-    configure_dispatcher(dispatcher, data)
+    messages = Messages()
+    configure_dispatcher(dispatcher, data, messages)
 
     executor.start_polling(
         dispatcher,

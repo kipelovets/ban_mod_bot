@@ -1,4 +1,4 @@
-from pyairtable import Table
+from pyairtable.api.table import Table
 
 
 class TranslatorsData:
@@ -17,7 +17,8 @@ class TranslatorsData:
                     result.add(other_lang)
         return result
 
-    def find_next_translator(self, lang_from: str, lang_to: str, prev: str = None) -> str:
+    def find_next_translator(self, lang_from: str, lang_to: str,
+                             prev: str | None = None) -> str | None:
         if prev == "":
             prev = None
         found_prev = False

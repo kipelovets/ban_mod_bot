@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, Mock
 from aiogram import types
 
 from bot.handlers import Handler
+from bot.messages import Messages
 
 TEXT = "test123"
 ID = 123
@@ -85,6 +86,14 @@ async def test_select_language():
                             text="Назад", callback_data="l|123|||")], ])
 
 
+def given_messages() -> Messages:
+    return Messages({
+        "can_not_reply_to_foreign_message": "Вы не можете отвечать на чужое сообщение!",
+        "welcome_choose_initial_language": "Привет @{username}!\nВыберите язык с которого нужно перевести",
+        "choose_target_language": "Привет @{username}!\nВыбранный язык документа: {from_lang}\nТеперь выберите язык на который нужно перевести:",
+    })
+
+
 def given_handler() -> Handler:
     data = Mock()
     data.get_language_pairs = Mock(
@@ -92,7 +101,7 @@ def given_handler() -> Handler:
     data.find_next_translator = Mock(return_value="translator_username")
     data.find_all_languages = Mock(
         return_value={"русский", "украинский", "немецкий"})
-    return Handler(data)
+    return Handler(data, given_messages())
 
 
 def given_new_chat_member() -> Mock:
