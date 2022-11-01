@@ -2,7 +2,9 @@ class Messages:
     translations: dict
 
     def __init__(self, translations: dict):
-        self.translations = translations
+        self.translations = {}
+        for key, value in translations.items():
+            self.translations[key] = value.replace("\\n", "\n")
 
     def can_not_reply_to_foreign_message(self) -> str:
         return self.translations['can_not_reply_to_foreign_message']

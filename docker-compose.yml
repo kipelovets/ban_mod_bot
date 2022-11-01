@@ -6,6 +6,7 @@ services:
       - "./:/app"
     working_dir: /app
     env_file: .env
+    command: python -m bot
 
   test:
     build: docker/test
