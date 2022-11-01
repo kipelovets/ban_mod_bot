@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from bot.messages import load_messages
 from .storage import load
 from .dispatcher import configure_dispatcher
+from .handlers import Handler
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -28,13 +29,23 @@ def main():
 
     data = load(api_key, base_id, table_name)
     messages = load_messages(api_key, base_id, messages_table_name)
-    configure_dispatcher(dispatcher, data, messages)
+    handler = Handler(data, messages)
+    reloader = make_reloader(handler, api_key, base_id, table_name, messages_table_name)
+    configure_dispatcher(dispatcher, handler, reloader)
 
     executor.start_polling(
         dispatcher,
         allowed_updates=types.AllowedUpdates.MESSAGE +
         types.AllowedUpdates.CALLBACK_QUERY +
         types.AllowedUpdates.CHAT_MEMBER)
+
+
+def make_reloader(handler: Handler, api_key, base_id, table_name, messages_table_name):
+    async def reloader(message: types.Message):
+        handler.data = load(api_key, base_id, table_name)
+        handler.messages = load_messages(api_key, base_id, messages_table_name)
+        await message.answer("Done")
+    return reloader
 
 
 if __name__ == "__main__":
