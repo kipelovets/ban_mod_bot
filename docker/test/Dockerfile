@@ -5,4 +5,6 @@ COPY requirements.txt /
 RUN pip install -r requirements.txt
 RUN pip install coverage pytest-asyncio pyairtable pylint autopep8 pyright
 RUN apt-get update && apt-get install -y npm
-RUN chown -R root /app
+RUN mkdir /app && chown -R root /app
+
+VOLUME [ "/app" ]
