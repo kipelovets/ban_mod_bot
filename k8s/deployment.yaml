@@ -46,3 +46,9 @@ spec:
                   name: lingvo-bot
                   key: AIRTABLE_TABLE_NAME
                   optional: false
+            - name: AIRTABLE_MESSAGES_TABLE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: lingvo-bot
+                  key: AIRTABLE_MESSAGES_TABLE_NAME
+                  optional: false
