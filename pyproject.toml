@@ -42,7 +42,6 @@ reportImplicitStringConcatenation = "error"
 reportPropertyTypeMismatch = true
 reportUninitializedInstanceVariable = true
 reportUnnecessaryTypeIgnoreComment = true
-reportUnusedCallResult = true
 reportUnknownVariableType = true
 
 reportMissingTypeStubs = false

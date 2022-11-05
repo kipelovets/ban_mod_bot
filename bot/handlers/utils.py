@@ -1,9 +1,9 @@
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 
-from bot.language import code_by_lang
+from bot.language import code_by_lang, UA, RU
 
-from_languages = ["украинский", "русский"]
+from_languages = [UA, RU]
 cb = CallbackData("l", "user_id", "from_lang",
                   "to_lang", "prev_translator", sep="|")
 
@@ -25,6 +25,6 @@ def format_name(user: types.User) -> str:
 def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
     for lang in from_languages:
-        _ = keyboard.add(types.InlineKeyboardButton(
+        keyboard.add(types.InlineKeyboardButton(
             text=lang, callback_data=make_cb(user_id, lang)))
     return keyboard

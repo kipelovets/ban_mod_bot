@@ -4,6 +4,7 @@ from aiogram import types
 
 from bot.handlers import Handler
 from bot.messages import Messages
+from bot.language import RU, UA
 
 TEXT = "test123"
 ID = 123
@@ -73,7 +74,7 @@ async def test_select_language():
     call = given_callback_query()
     await given_handler().select_language(call, {"user_id": ID, "from_lang": "ua"})
     call.answer.assert_not_called()
-    expected_message = """Привет @Joss!
+    expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
 Теперь:"""
     then_message_edited(
@@ -101,9 +102,12 @@ async def test_select_language_clicked_by_another_user():
 
 def given_messages() -> Messages:
     return Messages({
-        "can_not_reply_to_foreign_message": "Вы не можете отвечать на чужое сообщение!",
-        "welcome_choose_initial_language": "Привет @{username}!\nВыберите:",
-        "choose_target_language": "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
+        "can_not_reply_to_foreign_message": {RU: "Вы не можете отвечать на чужое сообщение!"},
+        "welcome_choose_initial_language": {RU: "Привет @{username}!\nВыберите:"},
+        "choose_target_language": {
+            RU: "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
+            UA: "[UA] Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:"
+        },
     })
 
 

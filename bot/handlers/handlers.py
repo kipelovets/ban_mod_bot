@@ -17,19 +17,19 @@ class Handler:
         self.messages = messages
 
     async def echo(self, message: types.Message):
-        _ = await message.answer(message.text)
+        await message.answer(message.text)
 
     async def start(self, message: types.Message):
-        _ = await message.answer(
+        await message.answer(
             self.messages.welcome_choose_initial_language(format_name(message.from_user)),
             reply_markup=format_from_language_keyboard(message.from_user.id))
 
     async def welcome(self, chat_member: types.ChatMemberUpdated):
         user = chat_member.new_chat_member.user
-        _ = await chat_member.bot.send_message(chat_member.chat.id,
-                                               self.messages.welcome_choose_initial_language(
-                                                   format_name(user)),
-                                               reply_markup=format_from_language_keyboard(user.id))
+        await chat_member.bot.send_message(chat_member.chat.id,
+                                           self.messages.welcome_choose_initial_language(
+                                               format_name(user)),
+                                           reply_markup=format_from_language_keyboard(user.id))
 
     async def select_from_language(self, call: types.CallbackQuery,
                                    callback_data: dict[str, int | str]):
@@ -37,7 +37,7 @@ class Handler:
         if user_id != call.from_user.id:
             await call.answer(self.messages.can_not_reply_to_foreign_message())
             return
-        _ = await call.message.edit_text(
+        await call.message.edit_text(
             self.messages.welcome_choose_initial_language(format_name(call.from_user)),
             reply_markup=format_from_language_keyboard(call.from_user.id))
 
@@ -56,7 +56,7 @@ class Handler:
             lang = pairs_list[i * 2]
             if i * 2 + 1 < len(pairs_list):
                 second_lang = pairs_list[i * 2 + 1]
-                _ = keyboard.add(
+                keyboard.add(
                     types.InlineKeyboardButton(
                         text=lang,
                         callback_data=make_cb(
@@ -70,7 +70,7 @@ class Handler:
                             from_lang,
                             second_lang)))
             else:
-                _ = keyboard.add(
+                keyboard.add(
                     types.InlineKeyboardButton(
                         text=lang,
                         callback_data=make_cb(
@@ -78,7 +78,7 @@ class Handler:
                             from_lang,
                             lang)))
 
-        _ = keyboard.add(
+        keyboard.add(
             types.InlineKeyboardButton(
                 text="Назад",
                 callback_data=make_cb(
@@ -87,7 +87,7 @@ class Handler:
         username = format_name(call.from_user)
         message = self.messages.choose_target_language(username, from_lang)
 
-        _ = await call.message.edit_text(message, reply_markup=keyboard)
+        await call.message.edit_text(message, reply_markup=keyboard)
 
     async def select_translator(self, call: types.CallbackQuery, callback_data: dict[str, str]):
         user_id = int(callback_data["user_id"])
@@ -104,30 +104,30 @@ class Handler:
         username = format_name(call.from_user)
 
         if None is translator:
-            _ = keyboard.add(
+            keyboard.add(
                 types.InlineKeyboardButton(
-                    text=self.messages.button_back(),
+                    text=self.messages.button_back(from_lang),
                     callback_data=make_cb(
                         call.from_user.id,
                         from_lang)))
             message = self.messages.no_translators_found(username, from_lang, to_lang)
-            _ = await call.message.edit_text(message, reply_markup=keyboard)
+            await call.message.edit_text(message, reply_markup=keyboard)
             return
 
         if translator is not None:
-            _ = keyboard.add(
+            keyboard.add(
                 types.InlineKeyboardButton(
-                    text=self.messages.button_next_translator(),
+                    text=self.messages.button_next_translator(from_lang),
                     callback_data=make_cb(
                         call.from_user.id,
                         from_lang,
                         to_lang,
                         translator)))
-            _ = keyboard.add(
+            keyboard.add(
                 types.InlineKeyboardButton(
-                    self.messages.button_back(),
+                    self.messages.button_back(from_lang),
                     callback_data=make_cb(
                         call.from_user.id,
                         from_lang)))
             message = self.messages.next_translator(username, from_lang, to_lang, translator)
-            _ = await call.message.edit_text(message, reply_markup=keyboard)
+            await call.message.edit_text(message, reply_markup=keyboard)
