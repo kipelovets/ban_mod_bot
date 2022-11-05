@@ -4,6 +4,7 @@ test:
 		docker-compose run --rm test pytest
 lint:
 		docker-compose run --rm test pylint bot tests
+		docker-compose run --rm test pyright bot tests
 format:
 		docker-compose run --rm test autopep8 bot tests --in-place -r -a -a -a
 build:

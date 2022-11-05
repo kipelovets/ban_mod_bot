@@ -1,7 +1,7 @@
 class Messages:
-    translations: dict
+    translations: dict[str, str]
 
-    def __init__(self, translations: dict):
+    def __init__(self, translations: dict[str, str]):
         self.translations = {}
         for key, value in translations.items():
             self.translations[key] = value.replace("\\n", "\n")

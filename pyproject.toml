@@ -1,2 +1,49 @@
 [tool.autopep8]
 max_line_length = 100
+
+[tool.pyright]
+
+typeCheckingMode = "basic"
+
+useLibraryCodeForTypes = true
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+reportConstantRedefinition = "error"
+reportDuplicateImport = "error"
+reportFunctionMemberAccess = "error"
+reportImportCycles = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportInconsistentConstructor = "error"
+reportMatchNotExhaustive = "error"
+reportMissingParameterType = "error"
+reportMissingTypeArgument = "error"
+reportOverlappingOverload = "error"
+reportPrivateUsage = "error"
+reportShadowedImports = "error"
+reportTypeCommentUsage = "error"
+reportUnknownLambdaType = "error"
+reportUnknownParameterType = "error"
+reportUnnecessaryCast = "error"
+reportUnnecessaryComparison = "error"
+reportUnnecessaryContains = "error"
+reportUnnecessaryIsInstance = "error"
+reportUnusedClass = "error"
+reportUnusedImport = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportUntypedBaseClass = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedNamedTuple = "error"
+reportCallInDefaultInitializer = "error"
+reportImplicitStringConcatenation = "error"
+reportPropertyTypeMismatch = true
+reportUninitializedInstanceVariable = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnusedCallResult = true
+reportUnknownVariableType = true
+
+reportMissingTypeStubs = false
+reportMissingSuperCall = false

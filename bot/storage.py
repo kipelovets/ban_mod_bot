@@ -1,13 +1,14 @@
+from typing import Any
 from pyairtable.api.table import Table
 
 
 class TranslatorsData:
-    def __init__(self, data: list[dict]):
+    def __init__(self, data: list[dict[str, Any]]):
         self.data = list(filter(
             lambda rec: "Языки" in rec["fields"] and "Телеграм-аккаунт" in rec["fields"], data))
 
     def get_language_pairs(self, lang: str) -> set[str]:
-        result = set()
+        result: set[str] = set()
         for rec in self.data:
             langs = rec["fields"]["Языки"]
             if lang not in langs:
@@ -35,7 +36,7 @@ class TranslatorsData:
         return None
 
     def find_all_languages(self) -> set[str]:
-        result = set()
+        result: set[str] = set()
         for rec in self.data:
             langs = rec["fields"]["Языки"]
             result.update(langs)

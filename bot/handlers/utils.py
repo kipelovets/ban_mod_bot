@@ -25,6 +25,6 @@ def format_name(user: types.User) -> str:
 def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
     for lang in from_languages:
-        keyboard.add(types.InlineKeyboardButton(
+        _ = keyboard.add(types.InlineKeyboardButton(
             text=lang, callback_data=make_cb(user_id, lang)))
     return keyboard

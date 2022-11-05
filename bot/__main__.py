@@ -40,11 +40,12 @@ def main():
         types.AllowedUpdates.CHAT_MEMBER)
 
 
-def make_reloader(handler: Handler, api_key, base_id, table_name, messages_table_name):
+def make_reloader(handler: Handler, api_key: str, base_id: str, table_name: str,
+                  messages_table_name: str):
     async def reloader(message: types.Message):
         handler.data = load(api_key, base_id, table_name)
         handler.messages = load_messages(api_key, base_id, messages_table_name)
-        await message.answer("Done")
+        _ = await message.answer("Done")
     return reloader
 
 

@@ -23,7 +23,7 @@ async def test_start():
     handler = given_handler()
     await handler.start(message=message_mock)
     then_answer(
-        message_mock, "Привет @Joss!\nВыберите язык с которого нужно перевести", [
+        message_mock, "Привет @Joss!\nВыберите:", [
             [types.InlineKeyboardButton(
                 text="украинский", callback_data='l|123|ua||')],
             [types.InlineKeyboardButton(
@@ -36,7 +36,7 @@ async def test_welcome():
     handler = given_handler()
     await handler.welcome(chat_member=chat_member_mock)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
-                      'Привет @Joss!\nВыберите язык с которого нужно перевести',
+                      'Привет @Joss!\nВыберите:',
                       [
                           [types.InlineKeyboardButton(
                               text="украинский", callback_data='l|123|ua||')],
@@ -48,11 +48,11 @@ async def test_welcome():
 async def test_select_from_language():
     handler = given_handler()
     call = given_callback_query()
-    callback_data = {"user_id": ID}
+    callback_data: dict[str, int | str] = {"user_id": ID}
     await handler.select_from_language(call, callback_data)
     call.answer.assert_not_called()
     then_message_edited(call.message,
-                        "Привет @Joss!\nВыберите язык с которого нужно перевести",
+                        "Привет @Joss!\nВыберите:",
                         [
                             [types.InlineKeyboardButton(
                                 text="украинский", callback_data='l|123|ua||')],
@@ -74,8 +74,8 @@ async def test_select_language():
     await given_handler().select_language(call, {"user_id": ID, "from_lang": "ua"})
     call.answer.assert_not_called()
     expected_message = """Привет @Joss!
-Выбранный язык документа: украинский
-Теперь выберите язык на который нужно перевести:"""
+Выбранный язык: украинский
+Теперь:"""
     then_message_edited(
         call.message, expected_message, [
             [
@@ -84,7 +84,6 @@ async def test_select_language():
             ],
             [
                 types.InlineKeyboardButton(text="немецкий", callback_data='l|123|ua|de|'),
-                # types.InlineKeyboardButton(text="польский", callback_data='l|123|ua|pl|')
             ],
             [
                 types.InlineKeyboardButton(text="Назад", callback_data="l|123|||")
@@ -103,8 +102,8 @@ async def test_select_language_clicked_by_another_user():
 def given_messages() -> Messages:
     return Messages({
         "can_not_reply_to_foreign_message": "Вы не можете отвечать на чужое сообщение!",
-        "welcome_choose_initial_language": "Привет @{username}!\nВыберите язык с которого нужно перевести",
-        "choose_target_language": "Привет @{username}!\nВыбранный язык документа: {from_lang}\nТеперь выберите язык на который нужно перевести:",
+        "welcome_choose_initial_language": "Привет @{username}!\nВыберите:",
+        "choose_target_language": "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
     })
 
 
@@ -141,7 +140,7 @@ def then_answer(message_mock: AsyncMock, expected_message: str,
     assert 1 == len(message_mock.answer.call_args.args)
     assert expected_message == message_mock.answer.call_args.args[0]
     assert 1 == len(message_mock.answer.call_args.kwargs)
-    markup = message_mock.answer.call_args.kwargs["reply_markup"]
+    markup: Mock = message_mock.answer.call_args.kwargs["reply_markup"]
     then_inline_keyboard(markup, expected_buttons)
 
 
@@ -151,7 +150,7 @@ def then_message_edited(message: AsyncMock, expected_message: str,
     assert 1 == len(message.edit_text.call_args.args)
     assert expected_message == message.edit_text.call_args.args[0]
     assert 1 == len(message.edit_text.call_args.kwargs)
-    markup = message.edit_text.call_args.kwargs["reply_markup"]
+    markup: Mock = message.edit_text.call_args.kwargs["reply_markup"]
     then_inline_keyboard(markup, expected_buttons)
 
 
@@ -163,7 +162,7 @@ def then_inline_keyboard(markup: Mock,
         assert len(expected_button_row) == len(
             markup.inline_keyboard[row_index])
         for col_index, expected_button in enumerate(expected_button_row):
-            button = markup.inline_keyboard[row_index][col_index]
+            button: types.InlineKeyboardButton = markup.inline_keyboard[row_index][col_index]
             assert expected_button.text == button.text
             assert expected_button.callback_data == button.callback_data
 
@@ -175,5 +174,5 @@ def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message:
     assert chat_id == bot_mock.send_message.call_args.args[0]
     assert expected_message == bot_mock.send_message.call_args.args[1]
     assert 1 == len(bot_mock.send_message.call_args.kwargs)
-    markup = bot_mock.send_message.call_args.kwargs["reply_markup"]
+    markup: Mock = bot_mock.send_message.call_args.kwargs["reply_markup"]
     then_inline_keyboard(markup, expected_buttons)

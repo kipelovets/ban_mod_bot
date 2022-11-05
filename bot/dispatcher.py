@@ -1,11 +1,11 @@
 
-from typing import Callable
+from typing import Awaitable, Callable
 from aiogram import Dispatcher
 from .handlers import (Handler, cb)
 
 
 def configure_dispatcher(dispatcher: Dispatcher, handler: Handler,
-                         reloader: Callable[..., None]) -> None:
+                         reloader: Callable[..., Awaitable[None]]) -> None:
 
     dispatcher.register_message_handler(handler.start, commands="translate")
     dispatcher.register_chat_member_handler(handler.welcome)
