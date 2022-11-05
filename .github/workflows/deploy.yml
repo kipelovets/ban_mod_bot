@@ -21,7 +21,7 @@ jobs:
         run: mv .env.test .env
       - name: Lint
         run: make lint
-      - name: Test & lint
+      - name: Test
         run: make test
   deploy:
     needs: test
