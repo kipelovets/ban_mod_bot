@@ -108,6 +108,7 @@ def given_messages() -> Messages:
             RU: "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
             UA: "[UA] Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:"
         },
+        "button_back": {UA: "Назад"}
     })
 
 
