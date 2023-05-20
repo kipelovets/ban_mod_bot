@@ -1,14 +1,16 @@
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 from aiogram import types
 
-from bot.handlers import Handler
-from bot.messages import Messages
-from bot.language import RU, UA
+from .utils import TEXT, ID, given_handler, given_callback_query, given_new_chat_member, \
+    given_user, then_answer, then_message_edited, then_message_sent
 
-TEXT = "test123"
-ID = 123
-NAME = "Joss"
+WELCOME_KEYBOARD = [
+    [types.InlineKeyboardButton(
+        text="украинский", callback_data='l|123|ua||')],
+    [types.InlineKeyboardButton(
+        text="русский", callback_data='l|123|ru||')],
+]
 
 
 async def test_echo():
@@ -24,12 +26,7 @@ async def test_start():
     handler = given_handler()
     await handler.start(message=message_mock)
     then_answer(
-        message_mock, "Привет @Joss!\nВыберите:", [
-            [types.InlineKeyboardButton(
-                text="украинский", callback_data='l|123|ua||')],
-            [types.InlineKeyboardButton(
-                text="русский", callback_data='l|123|ru||')],
-        ])
+        message_mock, "Привет @Joss!\nВыберите:", WELCOME_KEYBOARD)
 
 
 async def test_welcome():
@@ -38,12 +35,7 @@ async def test_welcome():
     await handler.welcome(chat_member=chat_member_mock)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       'Привет @Joss!\nВыберите:',
-                      [
-                          [types.InlineKeyboardButton(
-                              text="украинский", callback_data='l|123|ua||')],
-                          [types.InlineKeyboardButton(
-                              text="русский", callback_data='l|123|ru||')],
-                      ])
+                      WELCOME_KEYBOARD)
 
 
 async def test_select_from_language():
@@ -54,12 +46,7 @@ async def test_select_from_language():
     call.answer.assert_not_called()
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите:",
-                        [
-                            [types.InlineKeyboardButton(
-                                text="украинский", callback_data='l|123|ua||')],
-                            [types.InlineKeyboardButton(
-                                text="русский", callback_data='l|123|ru||')],
-                        ])
+                        WELCOME_KEYBOARD)
 
 
 async def test_select_from_language_clicked_by_another_user():
@@ -100,84 +87,25 @@ async def test_select_language_clicked_by_another_user():
     call.message.edit_text.assert_not_called()
 
 
-def given_messages() -> Messages:
-    return Messages({
-        "can_not_reply_to_foreign_message": {RU: "Вы не можете отвечать на чужое сообщение!"},
-        "welcome_choose_initial_language": {RU: "Привет @{username}!\nВыберите:"},
-        "choose_target_language": {
-            RU: "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
-            UA: "[UA] Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:"
-        },
-        "button_back": {UA: "Назад"}
-    })
+async def test_select_translator():
+    call = given_callback_query()
+    await given_handler().select_translator(call, {"user_id": str(ID), "from_lang": "ua",
+                                                   "to_lang": "de", "prev_translator": ""})
+    then_message_edited(call.message,
+                        """Привет @Joss!
+Следующий переводчик для пары украинский - немецкий: translator_username""",
+                        [[types.InlineKeyboardButton(text="Следующий переводчик",
+                                                     callback_data="l|123|ua|de|translator_username"),
+                          ],
+                         [types.InlineKeyboardButton(text="Назад",
+                                                     callback_data="l|123|ua||")]])
+    call.answer.assert_not_called()
 
 
-def given_handler() -> Handler:
-    data = Mock()
-    data.get_language_pairs = Mock(
-        return_value={"немецкий", "английский", "грузинский"})
-    data.find_next_translator = Mock(return_value="translator_username")
-    data.find_all_languages = Mock(
-        return_value={"русский", "украинский", "немецкий", "английский", "грузинский"})
-    return Handler(data, given_messages())
-
-
-def given_new_chat_member() -> Mock:
-    user_mock = given_user()
-    new_chat_member_mock = Mock(user=user_mock)
-    bot_mock = AsyncMock()
-    chat_mock = Mock(id=ID)
-    return Mock(
-        new_chat_member=new_chat_member_mock, bot=bot_mock, chat=chat_mock)
-
-
-def given_user() -> types.User:
-    return Mock(id=ID, username=NAME, full_name=NAME)
-
-
-def given_callback_query() -> Mock:
-    return AsyncMock(from_user=given_user())
-
-
-def then_answer(message_mock: AsyncMock, expected_message: str,
-                expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
-    message_mock.answer.assert_called_once()
-    assert 1 == len(message_mock.answer.call_args.args)
-    assert expected_message == message_mock.answer.call_args.args[0]
-    assert 1 == len(message_mock.answer.call_args.kwargs)
-    markup: Mock = message_mock.answer.call_args.kwargs["reply_markup"]
-    then_inline_keyboard(markup, expected_buttons)
-
-
-def then_message_edited(message: AsyncMock, expected_message: str,
-                        expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
-    message.edit_text.assert_called_once()
-    assert 1 == len(message.edit_text.call_args.args)
-    assert expected_message == message.edit_text.call_args.args[0]
-    assert 1 == len(message.edit_text.call_args.kwargs)
-    markup: Mock = message.edit_text.call_args.kwargs["reply_markup"]
-    then_inline_keyboard(markup, expected_buttons)
-
-
-def then_inline_keyboard(markup: Mock,
-                         expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
-    assert isinstance(markup, types.InlineKeyboardMarkup)
-    assert len(expected_buttons) == len(markup.inline_keyboard)
-    for row_index, expected_button_row in enumerate(expected_buttons):
-        assert len(expected_button_row) == len(
-            markup.inline_keyboard[row_index])
-        for col_index, expected_button in enumerate(expected_button_row):
-            button: types.InlineKeyboardButton = markup.inline_keyboard[row_index][col_index]
-            assert expected_button.text == button.text
-            assert expected_button.callback_data == button.callback_data
-
-
-def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message: str,
-                      expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
-    bot_mock.send_message.assert_called_once()
-    assert 2 == len(bot_mock.send_message.call_args.args)
-    assert chat_id == bot_mock.send_message.call_args.args[0]
-    assert expected_message == bot_mock.send_message.call_args.args[1]
-    assert 1 == len(bot_mock.send_message.call_args.kwargs)
-    markup: Mock = bot_mock.send_message.call_args.kwargs["reply_markup"]
-    then_inline_keyboard(markup, expected_buttons)
+async def test_select_translator_clicked_by_another_user():
+    call = given_callback_query()
+    await given_handler().select_translator(call, {"user_id": str(ID + 1), "from_lang": "ua",
+                                                   "to_lang": "de", "prev_translator": ""})
+    call.answer.assert_called_once_with(
+        "Вы не можете отвечать на чужое сообщение!")
+    call.message.edit_text.assert_not_called()
