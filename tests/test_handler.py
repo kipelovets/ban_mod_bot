@@ -1,9 +1,12 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 from aiogram import types
 
-from .utils import TEXT, ID, given_handler, given_callback_query, given_new_chat_member, \
-    given_user, then_answer, then_message_edited, then_message_sent
+import bot.handlers.handlers as handler
+from bot.data import LingvoData
+from .utils import given_messages, given_user, \
+    given_new_chat_member, given_callback_query, ID, \
+    then_message_edited, then_message_sent, then_answer
 
 WELCOME_KEYBOARD = [
     [types.InlineKeyboardButton(
@@ -12,37 +15,36 @@ WELCOME_KEYBOARD = [
         text="русский", callback_data='l|123|ru||')],
 ]
 
+mock_data = Mock()
+mock_data.get_language_pairs = Mock(
+    return_value={"немецкий", "английский", "грузинский"})
+mock_data.find_next_translator = Mock(return_value="translator_username")
+mock_data.find_all_languages = Mock(
+    return_value={"русский", "украинский", "немецкий", "английский", "грузинский"})
 
-async def test_echo():
-    message_mock = AsyncMock(text=TEXT)
-    handler = given_handler()
-    await handler.echo(message=message_mock)
-    message_mock.answer.assert_called_once_with(TEXT)
+mock_lingvo_data = LingvoData(mock_data, given_messages())
 
 
 async def test_start():
     user_mock = given_user()
     message_mock = AsyncMock(from_user=user_mock)
-    handler = given_handler()
-    await handler.start(message=message_mock)
+    await handler.start(message=message_mock, lingvo_data=mock_lingvo_data)
     then_answer(
         message_mock, "Привет @Joss!\nВыберите:", WELCOME_KEYBOARD)
 
 
 async def test_welcome():
     chat_member_mock = given_new_chat_member()
-    handler = given_handler()
-    await handler.welcome(chat_member=chat_member_mock)
+    await handler.welcome(chat_member=chat_member_mock, lingvo_data=mock_lingvo_data, bot=chat_member_mock.bot)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       'Привет @Joss!\nВыберите:',
                       WELCOME_KEYBOARD)
 
 
 async def test_select_from_language():
-    handler = given_handler()
     call = given_callback_query()
     callback_data: dict[str, int | str] = {"user_id": ID}
-    await handler.select_from_language(call, callback_data)
+    await handler.select_from_language(call, callback_data, lingvo_data=mock_lingvo_data)
     call.answer.assert_not_called()
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите:",
@@ -51,7 +53,7 @@ async def test_select_from_language():
 
 async def test_select_from_language_clicked_by_another_user():
     call = given_callback_query()
-    await given_handler().select_from_language(call, {"user_id": ID + 1})
+    await handler.select_from_language(call, {"user_id": ID + 1}, lingvo_data=mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -59,7 +61,7 @@ async def test_select_from_language_clicked_by_another_user():
 
 async def test_select_language():
     call = given_callback_query()
-    await given_handler().select_language(call, {"user_id": ID, "from_lang": "ua"})
+    await handler.select_language(call, {"user_id": ID, "from_lang": "ua"}, lingvo_data=mock_lingvo_data)
     call.answer.assert_not_called()
     expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
@@ -81,7 +83,7 @@ async def test_select_language():
 
 async def test_select_language_clicked_by_another_user():
     call = given_callback_query()
-    await given_handler().select_language(call, {"user_id": ID + 1, "from_lang": "ua"})
+    await handler.select_language(call, {"user_id": ID + 1, "from_lang": "ua"}, lingvo_data=mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -89,8 +91,9 @@ async def test_select_language_clicked_by_another_user():
 
 async def test_select_translator():
     call = given_callback_query()
-    await given_handler().select_translator(call, {"user_id": str(ID), "from_lang": "ua",
-                                                   "to_lang": "de", "prev_translator": ""})
+    await handler.select_translator(call, {"user_id": str(ID), "from_lang": "ua",
+                                           "to_lang": "de", "prev_translator": ""},
+                                    lingvo_data=mock_lingvo_data)
     then_message_edited(call.message,
                         """Привет @Joss!
 Следующий переводчик для пары украинский - немецкий: translator_username""",
@@ -104,8 +107,9 @@ async def test_select_translator():
 
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
-    await given_handler().select_translator(call, {"user_id": str(ID + 1), "from_lang": "ua",
-                                                   "to_lang": "de", "prev_translator": ""})
+    await handler.select_translator(call, {"user_id": str(ID + 1), "from_lang": "ua",
+                                           "to_lang": "de", "prev_translator": ""},
+                                    lingvo_data=mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()

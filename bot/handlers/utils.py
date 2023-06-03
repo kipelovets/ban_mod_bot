@@ -1,17 +1,28 @@
+from typing import Optional
 from aiogram import types
-from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.filters.callback_data import CallbackData
 
 from bot.language import code_by_lang, UA, RU
 
 from_languages = [UA, RU]
-cb = CallbackData("l", "user_id", "from_lang",
-                  "to_lang", "prev_translator", sep="|")
 
 
-def make_cb(user_id: int, from_lang: str = "", to_lang: str = "", prev_translator: str = ""):
-    to_lang = code_by_lang(to_lang) if to_lang != "" else ""
-    from_lang = code_by_lang(from_lang) if from_lang != "" else ""
-    return cb.new(
+class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
+    user_id: int
+    from_lang: Optional[str]
+    to_lang: Optional[str]
+    prev_translator: Optional[str]
+
+
+def make_cb(
+        user_id: int,
+        from_lang: str | None = None,
+        to_lang: str | None = None,
+        prev_translator: str | None = None):
+    to_lang = code_by_lang(to_lang) if to_lang is not None else ""
+    from_lang = code_by_lang(from_lang) if from_lang is not None else ""
+    return LingvoCallbackData(
         user_id=user_id,
         from_lang=from_lang,
         to_lang=to_lang,
@@ -23,8 +34,9 @@ def format_name(user: types.User) -> str:
 
 
 def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
-    keyboard = types.InlineKeyboardMarkup()
+    builder = InlineKeyboardBuilder()
     for lang in from_languages:
-        keyboard.add(types.InlineKeyboardButton(
-            text=lang, callback_data=make_cb(user_id, lang)))
-    return keyboard
+        builder.button(
+            text=lang, callback_data=make_cb(user_id, from_lang=lang))
+    builder.adjust(1)
+    return builder.as_markup()

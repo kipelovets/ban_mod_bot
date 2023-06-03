@@ -50,8 +50,8 @@ def lang_by_code(code: str) -> str:
     return languages[code]
 
 
-def code_by_lang(lang: str) -> str:
+def code_by_lang(lang: str | None) -> str:
     values = list(languages.values())
-    if lang not in values:
+    if lang is None or lang not in values:
         raise ValueError(f"Language '{lang}' is not found")
     return list(languages.keys())[values.index(lang)]

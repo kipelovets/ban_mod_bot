@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, Mock
 
 from aiogram import types
 
-from bot.handlers import Handler
 from bot.messages import Messages
 from bot.language import RU, UA
 
@@ -27,16 +26,6 @@ def given_messages() -> Messages:
     })
 
 
-def given_handler() -> Handler:
-    data = Mock()
-    data.get_language_pairs = Mock(
-        return_value={"немецкий", "английский", "грузинский"})
-    data.find_next_translator = Mock(return_value="translator_username")
-    data.find_all_languages = Mock(
-        return_value={"русский", "украинский", "немецкий", "английский", "грузинский"})
-    return Handler(data, given_messages())
-
-
 def given_new_chat_member() -> Mock:
     user_mock = given_user()
     new_chat_member_mock = Mock(user=user_mock)
@@ -58,7 +47,8 @@ def then_answer(message_mock: AsyncMock, expected_message: str,
                 expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     message_mock.answer.assert_called_once()
     assert 1 == len(message_mock.answer.call_args.args)
-    assert expected_message == message_mock.answer.call_args.args[0]
+    assert expected_message == message_mock.answer.call_args.args[0], \
+        f"Wrong message: {message_mock.answer.call_args.args[0]}"
     assert 1 == len(message_mock.answer.call_args.kwargs)
     markup: Mock = message_mock.answer.call_args.kwargs["reply_markup"]
     then_inline_keyboard(markup, expected_buttons)
@@ -79,7 +69,7 @@ def then_inline_keyboard(markup: Mock,
                          expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     assert isinstance(markup, types.InlineKeyboardMarkup)
     assert len(expected_buttons) == len(
-        markup.inline_keyboard), f"Unexpected number of buttons: {len(markup.inline_keyboard)}"
+        markup.inline_keyboard), f"Unexpected number of button rows: {len(markup.inline_keyboard)}"
     for row_index, expected_button_row in enumerate(expected_buttons):
         assert len(expected_button_row) == len(
             markup.inline_keyboard[row_index])

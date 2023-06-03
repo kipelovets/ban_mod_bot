@@ -13,3 +13,4 @@ services:
     volumes:
       - "./:/app"
     working_dir: /app
+    env_file: .env

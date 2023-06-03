@@ -1,5 +1,8 @@
+import logging
 from typing import Any
 from pyairtable.api.table import Table
+
+logger = logging.getLogger(__name__)
 
 
 class TranslatorsData:
@@ -44,5 +47,8 @@ class TranslatorsData:
 
 
 def load(api_key: str, base_id: str, table_name: str) -> TranslatorsData:
+    logger.info("Loading translators")
     table = Table(api_key, base_id, table_name)
-    return TranslatorsData(table.all())
+    data: list[dict[str, Any]] = table.all()
+    logger.info("loaded translators: %s", len(data))
+    return TranslatorsData(data)
