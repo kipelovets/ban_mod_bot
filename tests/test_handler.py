@@ -4,6 +4,7 @@ from aiogram import types
 
 import bot.handlers.handlers as handler
 from bot.data import LingvoData
+from bot.handlers.utils import make_cb
 from .utils import given_messages, given_user, \
     given_new_chat_member, given_callback_query, ID, \
     then_message_edited, then_message_sent, then_answer
@@ -28,16 +29,16 @@ mock_lingvo_data = LingvoData(mock_data, given_messages())
 async def test_start():
     user_mock = given_user()
     message_mock = AsyncMock(from_user=user_mock)
-    await handler.start(message=message_mock, lingvo_data=mock_lingvo_data)
+    await handler.start(message_mock, mock_lingvo_data)
     then_answer(
         message_mock, "Привет @Joss!\nВыберите:", WELCOME_KEYBOARD)
 
 
 async def test_welcome():
     chat_member_mock = given_new_chat_member()
-    await handler.welcome(chat_member=chat_member_mock,
-                          lingvo_data=mock_lingvo_data,
-                          bot=chat_member_mock.bot)
+    await handler.welcome(chat_member_mock,
+                          mock_lingvo_data,
+                          chat_member_mock.bot)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       'Привет @Joss!\nВыберите:',
                       WELCOME_KEYBOARD)
@@ -45,8 +46,7 @@ async def test_welcome():
 
 async def test_select_from_language():
     call = given_callback_query()
-    callback_data: dict[str, int | str] = {"user_id": ID}
-    await handler.select_from_language(call, callback_data, lingvo_data=mock_lingvo_data)
+    await handler.select_from_language(call, make_cb(ID), mock_lingvo_data)
     call.answer.assert_not_called()
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите:",
@@ -55,7 +55,7 @@ async def test_select_from_language():
 
 async def test_select_from_language_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_from_language(call, {"user_id": ID + 1}, lingvo_data=mock_lingvo_data)
+    await handler.select_from_language(call, make_cb(ID + 1), mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -63,8 +63,8 @@ async def test_select_from_language_clicked_by_another_user():
 
 async def test_select_language():
     call = given_callback_query()
-    await handler.select_language(call, callback_data={"user_id": ID, "from_lang": "ua"},
-                                  lingvo_data=mock_lingvo_data)
+    await handler.select_language(call, make_cb(ID, "украинский"),
+                                  mock_lingvo_data)
     call.answer.assert_not_called()
     expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
@@ -86,8 +86,8 @@ async def test_select_language():
 
 async def test_select_language_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_language(call, callback_data={"user_id": ID + 1, "from_lang": "ua"},
-                                  lingvo_data=mock_lingvo_data)
+    await handler.select_language(call, make_cb(ID + 1, "украинский"),
+                                  mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -95,9 +95,8 @@ async def test_select_language_clicked_by_another_user():
 
 async def test_select_translator():
     call = given_callback_query()
-    await handler.select_translator(call, {"user_id": str(ID), "from_lang": "ua",
-                                           "to_lang": "de", "prev_translator": ""},
-                                    lingvo_data=mock_lingvo_data)
+    await handler.select_translator(call, make_cb(ID, "украинский", "немецкий"),
+                                    mock_lingvo_data)
 
     expected_buttons = [
         [
@@ -114,9 +113,8 @@ async def test_select_translator():
 
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_translator(call, {"user_id": str(ID + 1), "from_lang": "ua",
-                                           "to_lang": "de", "prev_translator": ""},
-                                    lingvo_data=mock_lingvo_data)
+    await handler.select_translator(call, make_cb(ID + 1, "украинский", "немецкий"),
+                                    mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
