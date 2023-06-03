@@ -1,3 +1,4 @@
+# pyright: reportUnknownVariableType=false
 
 from unittest.mock import AsyncMock, Mock
 
@@ -10,6 +11,9 @@ TEXT = "test123"
 ID = 123
 NAME = "Joss"
 
+NEXT_TRANSLATOR_MSG = "Привет @{username}!\n" + \
+    "Следующий переводчик для пары {from_lang} - {to_lang}: {translator}"
+
 
 def given_messages() -> Messages:
     return Messages({
@@ -21,7 +25,7 @@ def given_messages() -> Messages:
         },
         "button_back": {UA: "Назад"},
         "button_next_translator": {UA: "Следующий переводчик"},
-        "next_translator": {UA: "Привет @{username}!\nСледующий переводчик для пары {from_lang} - {to_lang}: {translator}"}
+        "next_translator": {UA: NEXT_TRANSLATOR_MSG}
 
     })
 

@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
@@ -8,10 +9,9 @@ from bot.data import LingvoData
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
 class LingvoDataMiddleware(BaseMiddleware):
     def __init__(self, lingvo_data: LingvoData):
-        print("!!!!")
-        logger.critical("!!!!")
         self.lingvo_data = lingvo_data
         BaseMiddleware.__init__(self)
 
@@ -21,8 +21,6 @@ class LingvoDataMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any]
     ) -> Any:
-        print("Before handler")
         data["lingvo_data"] = self.lingvo_data
         result = await handler(event, data)
-        print("After handler")
         return result

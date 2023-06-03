@@ -35,7 +35,9 @@ async def test_start():
 
 async def test_welcome():
     chat_member_mock = given_new_chat_member()
-    await handler.welcome(chat_member=chat_member_mock, lingvo_data=mock_lingvo_data, bot=chat_member_mock.bot)
+    await handler.welcome(chat_member=chat_member_mock,
+                          lingvo_data=mock_lingvo_data,
+                          bot=chat_member_mock.bot)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       'Привет @Joss!\nВыберите:',
                       WELCOME_KEYBOARD)
@@ -61,7 +63,8 @@ async def test_select_from_language_clicked_by_another_user():
 
 async def test_select_language():
     call = given_callback_query()
-    await handler.select_language(call, {"user_id": ID, "from_lang": "ua"}, lingvo_data=mock_lingvo_data)
+    await handler.select_language(call, callback_data={"user_id": ID, "from_lang": "ua"},
+                                  lingvo_data=mock_lingvo_data)
     call.answer.assert_not_called()
     expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
@@ -83,7 +86,8 @@ async def test_select_language():
 
 async def test_select_language_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_language(call, {"user_id": ID + 1, "from_lang": "ua"}, lingvo_data=mock_lingvo_data)
+    await handler.select_language(call, callback_data={"user_id": ID + 1, "from_lang": "ua"},
+                                  lingvo_data=mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -94,14 +98,17 @@ async def test_select_translator():
     await handler.select_translator(call, {"user_id": str(ID), "from_lang": "ua",
                                            "to_lang": "de", "prev_translator": ""},
                                     lingvo_data=mock_lingvo_data)
+
+    expected_buttons = [
+        [
+            types.InlineKeyboardButton(
+                text="Следующий переводчик", callback_data="l|123|ua|de|translator_username"), ], [
+            types.InlineKeyboardButton(
+                text="Назад", callback_data="l|123|ua||")]]
     then_message_edited(call.message,
                         """Привет @Joss!
 Следующий переводчик для пары украинский - немецкий: translator_username""",
-                        [[types.InlineKeyboardButton(text="Следующий переводчик",
-                                                     callback_data="l|123|ua|de|translator_username"),
-                          ],
-                         [types.InlineKeyboardButton(text="Назад",
-                                                     callback_data="l|123|ua||")]])
+                        expected_buttons=expected_buttons)
     call.answer.assert_not_called()
 
 

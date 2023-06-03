@@ -11,11 +11,13 @@ from bot.middleware import LingvoDataMiddleware
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+ALLOWED_UPDATES = ["message", "inline_query", "chat_member", "callback_query"]
+
 
 async def main():
     token = os.getenv('TELEGRAM_TOKEN')
     if token is None:
-        print("Error: required env vars not defined")
+        print("Error: required env var TELEGRAM_TOKEN not defined")
         sys.exit(1)
     bot = Bot(token=token)
 
@@ -23,7 +25,7 @@ async def main():
     dispatcher.include_router(router)
     router.message.middleware(LingvoDataMiddleware(load_lingvo_data()))
 
-    await dispatcher.start_polling(bot, allowed_updates=["message", "inline_query", "chat_member", "callback_query"])
+    await dispatcher.start_polling(bot, allowed_updates=ALLOWED_UPDATES)
 
 
 if __name__ == "__main__":
