@@ -23,7 +23,11 @@ async def main():
 
     dispatcher = Dispatcher()
     dispatcher.include_router(router)
-    router.message.middleware(LingvoDataMiddleware(load_lingvo_data()))
+
+    middleware = LingvoDataMiddleware(load_lingvo_data())
+    router.message.middleware(middleware)
+    router.callback_query.middleware(middleware)
+    router.chat_member.middleware(middleware)
 
     await dispatcher.start_polling(bot, allowed_updates=ALLOWED_UPDATES)
 

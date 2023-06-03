@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, TypeVar, Callable, Any, Tuple
+
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters.callback_data import CallbackData
@@ -40,3 +41,16 @@ def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
             text=lang, callback_data=make_cb(user_id, from_lang=lang))
     builder.adjust(1)
     return builder.as_markup()
+
+T = TypeVar('T')
+
+def extract_kwarg(kwarg_name: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        def wrapper(*args: Tuple[Any], **kwargs: Any) -> T:
+            if kwarg_name in kwargs:
+                value = kwargs.pop(kwarg_name)
+                # Define the argument on the function's argument list
+                args += (value,)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

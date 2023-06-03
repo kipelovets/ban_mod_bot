@@ -6,7 +6,7 @@ from magic_filter import F
 from aiogram import types, Router, Bot
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from bot.handlers.utils import (format_from_language_keyboard, format_name, make_cb)
+from bot.handlers.utils import (extract_kwarg, format_from_language_keyboard, format_name, make_cb)
 from bot.language import lang_by_code
 from bot.data import LingvoData
 from bot.handlers.utils import LingvoCallbackData
@@ -14,7 +14,9 @@ from bot.handlers.utils import LingvoCallbackData
 logger = logging.getLogger(__name__)
 router = Router()
 
+SUPER_ADMIN = 1167194
 
+@extract_kwarg("lingvo_data")
 @router.message(Command('start'))
 async def start(message: types.Message, lingvo_data: LingvoData):
     if message.from_user is None:
@@ -26,9 +28,9 @@ async def start(message: types.Message, lingvo_data: LingvoData):
         reply_markup=format_from_language_keyboard(message.from_user.id))
 
 
+@extract_kwarg("lingvo_data")
 @router.chat_member()
 async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData, bot: Bot):
-    logger.critical("WELCOME =============================================================")
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     await bot.send_message(chat_member.chat.id,
@@ -37,18 +39,16 @@ async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData,
                            reply_markup=format_from_language_keyboard(user.id))
 
 
-@router.callback_query(LingvoCallbackData.filter(F.from_lang == "" and F.to_lang == ""))
+@extract_kwarg("lingvo_data")
+@router.callback_query(LingvoCallbackData.filter(F.from_lang.is_(None) & F.to_lang.is_(None)))
 async def select_from_language(call: types.CallbackQuery,
-                               callback_data: dict[str, int | str],
+                               callback_data: LingvoCallbackData,
                                lingvo_data: LingvoData):
     if call.message is None:
         logger.error("callback without message %s", call.id)
         return
-    if isinstance(callback_data["user_id"], int):
-        user_id = callback_data["user_id"]
-    else:
-        user_id = int(callback_data["user_id"], base=10)
-    if user_id != call.from_user.id:
+    user_id = callback_data.user_id
+    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
         logger.warning("select_from_language %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
@@ -58,18 +58,19 @@ async def select_from_language(call: types.CallbackQuery,
         reply_markup=format_from_language_keyboard(call.from_user.id))
 
 
-@router.callback_query(LingvoCallbackData.filter(F.to_lang == ""))
-async def select_language(call: types.CallbackQuery, callback_data: dict[str, int | str],
+@extract_kwarg("lingvo_data")
+@router.callback_query(LingvoCallbackData.filter(F.to_lang.is_(None)))
+async def select_language(call: types.CallbackQuery, callback_data: LingvoCallbackData,
                           lingvo_data: LingvoData):
     if call.message is None:
         logger.error("callback without message %s", call.id)
         return
-    user_id = int(callback_data["user_id"])
-    if user_id != call.from_user.id:
+    user_id = int(callback_data.user_id)
+    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
         logger.info("select_language %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
-    from_lang = lang_by_code(str(callback_data["from_lang"]))
+    from_lang = lang_by_code(callback_data.from_lang)
     logger.info("select_language %s from_lang %s", user_id, from_lang)
 
     pairs = lingvo_data.data.get_language_pairs(from_lang)
@@ -101,21 +102,22 @@ async def select_language(call: types.CallbackQuery, callback_data: dict[str, in
     await call.message.edit_text(message, reply_markup=builder.as_markup())
 
 
-@router.callback_query(LingvoCallbackData.filter())
+@extract_kwarg("lingvo_data")
+@router.callback_query(LingvoCallbackData.filter(~(F.from_lang.is_(None) | F.to_lang.is_(None))))
 async def select_translator(call: types.CallbackQuery,
-                            callback_data: dict[str, str],
+                            callback_data: LingvoCallbackData,
                             lingvo_data: LingvoData):
     if call.message is None:
         logger.error("callback without message %s", call.id)
         return
-    user_id = int(callback_data["user_id"])
-    if user_id != call.from_user.id:
+    user_id = int(callback_data.user_id)
+    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
         logger.warning("select_translator %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
-    from_lang = lang_by_code(callback_data["from_lang"])
-    to_lang = lang_by_code(callback_data["to_lang"])
-    prev_translator = callback_data["prev_translator"]
+    from_lang = lang_by_code(callback_data.from_lang)
+    to_lang = lang_by_code(callback_data.to_lang)
+    prev_translator = callback_data.prev_translator
 
     translator = lingvo_data.data.find_next_translator(
         from_lang, to_lang, prev_translator)

@@ -44,8 +44,8 @@ languages = {
     'it': 'итальянский'}
 
 
-def lang_by_code(code: str) -> str:
-    if code not in languages:
+def lang_by_code(code: str | None) -> str:
+    if code is None or code not in languages:
         raise ValueError(f"Language '{code}' is not found")
     return languages[code]
 
