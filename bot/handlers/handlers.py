@@ -9,12 +9,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.handlers.utils import (extract_kwarg, format_from_language_keyboard, format_name, make_cb)
 from bot.language import lang_by_code
 from bot.data import LingvoData
-from bot.handlers.utils import LingvoCallbackData
+from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 
 logger = logging.getLogger(__name__)
 router = Router()
 
 SUPER_ADMIN = 1167194
+
 
 @extract_kwarg("lingvo_data")
 @router.message(Command('start'))
@@ -37,6 +38,25 @@ async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData,
                            lingvo_data.messages.welcome_choose_initial_language(
                                format_name(user)),
                            reply_markup=format_from_language_keyboard(user.id))
+
+
+@extract_kwarg("lingvo_data")
+@router.callback_query(FinishCallbackData.filter())
+async def finish(call: types.CallbackQuery,
+                 callback_data: FinishCallbackData,
+                 lingvo_data: LingvoData):
+    if call.message is None:
+        logger.error("callback without message %s", call.id)
+        return
+    user_id = callback_data.user_id
+    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
+        logger.warning("finish %s wrong user %s", user_id, call.from_user.id)
+        await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
+        return
+    from_lang = lang_by_code(callback_data.from_lang)
+    await call.message.edit_text(
+        lingvo_data.messages.finished(from_lang),
+        reply_markup=None)
 
 
 @extract_kwarg("lingvo_data")
@@ -147,6 +167,9 @@ async def select_translator(call: types.CallbackQuery,
             from_lang,
             to_lang,
             translator))
+        builder.button(text=lingvo_data.messages.button_finish(from_lang),
+                       callback_data=FinishCallbackData(user_id=user_id, 
+                                                        from_lang=callback_data.from_lang))
         builder.button(text=lingvo_data.messages.button_back(from_lang),
                        callback_data=make_cb(
             call.from_user.id,

@@ -35,6 +35,12 @@ class Messages:
     def button_next_translator(self, from_lang: str) -> str:
         return self._t('button_next_translator', from_lang)
 
+    def button_finish(self, from_lang: str) -> str:
+        return self._t("button_finish", from_lang)
+
+    def finished(self, from_lang: str) -> str:
+        return self._t("finished", from_lang)
+
     def _t(self, key: str, from_lang: str) -> str:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")

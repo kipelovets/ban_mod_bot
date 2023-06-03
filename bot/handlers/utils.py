@@ -15,6 +15,10 @@ class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
     to_lang: Optional[str]
     prev_translator: Optional[str]
 
+class FinishCallbackData(CallbackData, prefix="f", sep="|"):
+    user_id: int
+    from_lang: Optional[str]
+
 
 def make_cb(
         user_id: int,
