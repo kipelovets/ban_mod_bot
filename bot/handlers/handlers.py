@@ -48,7 +48,7 @@ async def finish(call: types.CallbackQuery,
         logger.error("callback without message %s", call.id)
         return
     user_id = callback_data.user_id
-    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
+    if user_id not in (call.from_user.id, SUPER_ADMIN):
         logger.warning("finish %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
@@ -67,7 +67,7 @@ async def select_from_language(call: types.CallbackQuery,
         logger.error("callback without message %s", call.id)
         return
     user_id = callback_data.user_id
-    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
+    if user_id not in (call.from_user.id, SUPER_ADMIN):
         logger.warning("select_from_language %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
@@ -85,7 +85,7 @@ async def select_language(call: types.CallbackQuery, callback_data: LingvoCallba
         logger.error("callback without message %s", call.id)
         return
     user_id = int(callback_data.user_id)
-    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
+    if user_id not in (call.from_user.id, SUPER_ADMIN):
         logger.info("select_language %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
@@ -124,7 +124,7 @@ async def select_translator(call: types.CallbackQuery,
         logger.error("callback without message %s", call.id)
         return
     user_id = int(callback_data.user_id)
-    if user_id != call.from_user.id and call.from_user.id != SUPER_ADMIN:
+    if user_id not in (call.from_user.id, SUPER_ADMIN):
         logger.warning("select_translator %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
