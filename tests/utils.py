@@ -25,7 +25,8 @@ def given_messages() -> Messages:
         },
         "button_back": {UA: "Назад"},
         "button_next_translator": {UA: "Следующий переводчик"},
-        "next_translator": {UA: NEXT_TRANSLATOR_MSG}
+        "next_translator": {UA: NEXT_TRANSLATOR_MSG},
+        "button_finish": {UA: "_ button finish"}
 
     })
 
@@ -72,15 +73,17 @@ def then_message_edited(message: AsyncMock, expected_message: str,
 def then_inline_keyboard(markup: Mock,
                          expected_buttons: list[list[types.InlineKeyboardButton]]) -> None:
     assert isinstance(markup, types.InlineKeyboardMarkup)
-    assert len(expected_buttons) == len(
-        markup.inline_keyboard), f"Unexpected number of button rows: {len(markup.inline_keyboard)}"
+    assert len(expected_buttons) == len(markup.inline_keyboard), \
+        f"Button rows: {len(markup.inline_keyboard)} != {len(expected_buttons)}"
     for row_index, expected_button_row in enumerate(expected_buttons):
         assert len(expected_button_row) == len(
             markup.inline_keyboard[row_index])
         for col_index, expected_button in enumerate(expected_button_row):
             button: types.InlineKeyboardButton = markup.inline_keyboard[row_index][col_index]
-            assert expected_button.text == button.text
-            assert expected_button.callback_data == button.callback_data
+            assert expected_button.text == button.text, \
+                f"Button {expected_button.text} != {button.text}"
+            assert expected_button.callback_data == button.callback_data, \
+                f"Data {expected_button.callback_data} != {button.callback_data}"
 
 
 def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message: str,

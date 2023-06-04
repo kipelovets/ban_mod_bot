@@ -101,9 +101,14 @@ async def test_select_translator():
     expected_buttons = [
         [
             types.InlineKeyboardButton(
-                text="Следующий переводчик", callback_data="l|123|ua|de|translator_username"), ], [
+                text="Следующий переводчик", callback_data="l|123|ua|de|translator_username"), ],
+        [
             types.InlineKeyboardButton(
-                text="Назад", callback_data="l|123|ua||")]]
+                text="_ button finish", callback_data="f|123|ua")],
+        [
+            types.InlineKeyboardButton(
+                text="Назад", callback_data="l|123|ua||")],
+        ]
     then_message_edited(call.message,
                         """Привет @Joss!
 Следующий переводчик для пары украинский - немецкий: translator_username""",
