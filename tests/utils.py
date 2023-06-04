@@ -18,7 +18,7 @@ NEXT_TRANSLATOR_MSG = "Привет @{username}!\n" + \
 def given_messages() -> Messages:
     return Messages({
         "can_not_reply_to_foreign_message": {RU: "Вы не можете отвечать на чужое сообщение!"},
-        "welcome_choose_initial_language": {RU: "Привет @{username}!\nВыберите:"},
+        "choose_from_language": {RU: "Привет @{username}!\nВыберите:"},
         "choose_target_language": {
             RU: "Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:",
             UA: "[UA] Привет @{username}!\nВыбранный язык: {from_lang}\nТеперь:"
@@ -27,7 +27,6 @@ def given_messages() -> Messages:
         "button_next_translator": {UA: "Следующий переводчик"},
         "next_translator": {UA: NEXT_TRANSLATOR_MSG},
         "button_finish": {UA: "_ button finish"}
-
     })
 
 

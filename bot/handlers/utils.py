@@ -19,6 +19,11 @@ class FinishCallbackData(CallbackData, prefix="f", sep="|"):
     user_id: int
     from_lang: Optional[str]
 
+class PopularLanguagesCallbackData(CallbackData, prefix="p", sep="|"):
+    user_id: int
+    from_lang: Optional[str]
+    to_lang: Optional[str]
+
 
 def make_cb(
         user_id: int,

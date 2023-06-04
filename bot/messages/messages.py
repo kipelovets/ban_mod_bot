@@ -14,8 +14,11 @@ class Messages:
     def can_not_reply_to_foreign_message(self) -> str:
         return self._t('can_not_reply_to_foreign_message', RU)
 
-    def welcome_choose_initial_language(self, username: str) -> str:
-        return self._t('welcome_choose_initial_language', RU).format(username=username)
+    def choose_from_language(self, username: str) -> str:
+        return self._t('choose_from_language', RU).format(username=username)
+
+    def welcome_choose_popular_pairs(self, username: str) -> str:
+        return self._t('welcome_choose_popular_pairs', RU).format(username=username)
 
     def choose_target_language(self, username: str, from_lang: str) -> str:
         return self._t('choose_target_language', from_lang).format(

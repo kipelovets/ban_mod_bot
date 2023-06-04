@@ -18,10 +18,10 @@ WELCOME_KEYBOARD = [
 
 mock_data = Mock()
 mock_data.get_language_pairs = Mock(
-    return_value={"немецкий", "английский", "грузинский"})
+    return_value={'немецкий 🇩🇪', 'английский 🇬🇧', "грузинский"})
 mock_data.find_next_translator = Mock(return_value="translator_username")
 mock_data.find_all_languages = Mock(
-    return_value={"русский", "украинский", "немецкий", "английский", "грузинский"})
+    return_value={"русский", "украинский", 'немецкий 🇩🇪', 'английский 🇬🇧', "грузинский"})
 
 mock_lingvo_data = LingvoData(mock_data, given_messages())
 
@@ -72,11 +72,11 @@ async def test_select_language():
     then_message_edited(
         call.message, expected_message, [
             [
-                types.InlineKeyboardButton(text="английский", callback_data='l|123|ua|en|'),
+                types.InlineKeyboardButton(text='английский 🇬🇧', callback_data='l|123|ua|en|'),
                 types.InlineKeyboardButton(text="грузинский", callback_data='l|123|ua|ka|')
             ],
             [
-                types.InlineKeyboardButton(text="немецкий", callback_data='l|123|ua|de|'),
+                types.InlineKeyboardButton(text='немецкий 🇩🇪', callback_data='l|123|ua|de|'),
             ],
             [
                 types.InlineKeyboardButton(text="Назад", callback_data="l|123|||")
@@ -95,7 +95,7 @@ async def test_select_language_clicked_by_another_user():
 
 async def test_select_translator():
     call = given_callback_query()
-    await handler.select_translator(call, make_cb(ID, "украинский", "немецкий"),
+    await handler.select_translator(call, make_cb(ID, "украинский", 'немецкий 🇩🇪'),
                                     mock_lingvo_data)
 
     expected_buttons = [
@@ -108,17 +108,17 @@ async def test_select_translator():
         [
             types.InlineKeyboardButton(
                 text="Назад", callback_data="l|123|ua||")],
-        ]
+    ]
     then_message_edited(call.message,
                         """Привет @Joss!
-Следующий переводчик для пары украинский - немецкий: translator_username""",
+Следующий переводчик для пары украинский - немецкий 🇩🇪: translator_username""",
                         expected_buttons=expected_buttons)
     call.answer.assert_not_called()
 
 
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_translator(call, make_cb(ID + 1, "украинский", "немецкий"),
+    await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий 🇩🇪'),
                                     mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")

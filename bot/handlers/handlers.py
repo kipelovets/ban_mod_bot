@@ -1,4 +1,5 @@
 import logging
+import os
 
 from math import ceil
 from magic_filter import F
@@ -13,8 +14,7 @@ from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 
 logger = logging.getLogger(__name__)
 router = Router()
-
-SUPER_ADMIN = 1167194
+SUPER_ADMIN = int(os.getenv('SUPER_ADMIN', ""))
 
 
 @extract_kwarg("lingvo_data")
@@ -25,7 +25,7 @@ async def start(message: types.Message, lingvo_data: LingvoData):
         return
     logger.info("start %s", message.from_user.id)
     await message.answer(
-        lingvo_data.messages.welcome_choose_initial_language(format_name(message.from_user)),
+        lingvo_data.messages.choose_from_language(format_name(message.from_user)),
         reply_markup=format_from_language_keyboard(message.from_user.id))
 
 
@@ -35,7 +35,7 @@ async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData,
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     await bot.send_message(chat_member.chat.id,
-                           lingvo_data.messages.welcome_choose_initial_language(
+                           lingvo_data.messages.choose_from_language(
                                format_name(user)),
                            reply_markup=format_from_language_keyboard(user.id))
 
@@ -74,7 +74,7 @@ async def select_from_language(call: types.CallbackQuery,
         return
     logger.info("select_from_language %s", user_id)
     await call.message.edit_text(
-        lingvo_data.messages.welcome_choose_initial_language(format_name(call.from_user)),
+        lingvo_data.messages.choose_from_language(format_name(call.from_user)),
         reply_markup=format_from_language_keyboard(call.from_user.id))
 
 
