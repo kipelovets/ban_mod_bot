@@ -26,7 +26,8 @@ def given_messages() -> Messages:
         "button_back": {UA: "Назад"},
         "button_next_translator": {UA: "Следующий переводчик"},
         "next_translator": {UA: NEXT_TRANSLATOR_MSG},
-        "button_finish": {UA: "_ button finish"}
+        "button_finish": {UA: "_ button finish"},
+        "welcome_choose_popular_pairs": {RU: "_ welcome {username}"}
     })
 
 
@@ -90,7 +91,8 @@ def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message:
     bot_mock.send_message.assert_called_once()
     assert 2 == len(bot_mock.send_message.call_args.args)
     assert chat_id == bot_mock.send_message.call_args.args[0]
-    assert expected_message == bot_mock.send_message.call_args.args[1]
+    assert expected_message == bot_mock.send_message.call_args.args[1],\
+        f"Message {expected_message} != {bot_mock.send_message.call_args.args[1]}"
     assert 1 == len(bot_mock.send_message.call_args.kwargs)
     markup: Mock = bot_mock.send_message.call_args.kwargs["reply_markup"]
     then_inline_keyboard(markup, expected_buttons)

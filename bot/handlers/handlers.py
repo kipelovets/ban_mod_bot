@@ -1,14 +1,14 @@
 import logging
 import os
 
-from math import ceil
 from magic_filter import F
 
 from aiogram import types, Router, Bot
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from bot.handlers.utils import (extract_kwarg, format_from_language_keyboard, format_name, make_cb)
-from bot.language import lang_by_code
+from bot.handlers.utils import (extract_kwarg, format_from_language_keyboard, format_name, make_cb,
+                                format_popular_languages_keyboard)
+from bot.language import lang_by_code, prettify_lang, languages
 from bot.data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 
@@ -25,8 +25,8 @@ async def start(message: types.Message, lingvo_data: LingvoData):
         return
     logger.info("start %s", message.from_user.id)
     await message.answer(
-        lingvo_data.messages.choose_from_language(format_name(message.from_user)),
-        reply_markup=format_from_language_keyboard(message.from_user.id))
+        lingvo_data.messages.welcome_choose_popular_pairs(format_name(message.from_user)),
+        reply_markup=format_popular_languages_keyboard(message.from_user.id))
 
 
 @extract_kwarg("lingvo_data")
@@ -35,9 +35,8 @@ async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData,
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     await bot.send_message(chat_member.chat.id,
-                           lingvo_data.messages.choose_from_language(
-                               format_name(user)),
-                           reply_markup=format_from_language_keyboard(user.id))
+                           lingvo_data.messages.welcome_choose_popular_pairs(format_name(user)),
+                           reply_markup=format_popular_languages_keyboard(user.id))
 
 
 @extract_kwarg("lingvo_data")
@@ -93,23 +92,17 @@ async def select_language(call: types.CallbackQuery, callback_data: LingvoCallba
     from_lang = lang_by_code(callback_data.from_lang)
     logger.info("select_language %s from_lang %s", user_id, from_lang)
 
-    pairs = lingvo_data.data.get_language_pairs(from_lang)
-    pairs_list = sorted(pairs)
+    target_languages = lingvo_data.data.available_targets(from_lang)
 
     builder = InlineKeyboardBuilder()
-    for i in range(0, ceil(len(pairs_list) / 2)):
-        lang = pairs_list[i * 2]
-        builder.button(text=lang, callback_data=make_cb(user_id=call.from_user.id,
-                                                        from_lang=from_lang,
-                                                        to_lang=lang))
-        if i * 2 + 1 < len(pairs_list):
-            second_lang = pairs_list[i * 2 + 1]
+    for _, lang in languages.items():
+        if lang in target_languages:
             builder.button(
-                text=second_lang,
+                text=prettify_lang(lang),
                 callback_data=make_cb(
                     user_id=call.from_user.id,
                     from_lang=from_lang,
-                    to_lang=second_lang))
+                    to_lang=lang))
 
     builder.adjust(2)
     builder.row(types.InlineKeyboardButton(text=lingvo_data.messages.button_back(from_lang),
@@ -168,7 +161,7 @@ async def select_translator(call: types.CallbackQuery,
             to_lang,
             translator))
         builder.button(text=lingvo_data.messages.button_finish(from_lang),
-                       callback_data=FinishCallbackData(user_id=user_id, 
+                       callback_data=FinishCallbackData(user_id=user_id,
                                                         from_lang=callback_data.from_lang))
         builder.button(text=lingvo_data.messages.button_back(from_lang),
                        callback_data=make_cb(

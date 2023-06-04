@@ -29,7 +29,7 @@ def make_test_data():
 
 def test_get_language_pairs():
     data = make_test_data()
-    assert {"английский", "испанский"} == data.get_language_pairs("русский")
+    assert ["испанский", "английский"] == data.available_targets("русский")
 
 
 def find_next_translator():

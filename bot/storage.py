@@ -10,7 +10,7 @@ class TranslatorsData:
         self.data = list(filter(
             lambda rec: "Языки" in rec["fields"] and "Телеграм-аккаунт" in rec["fields"], data))
 
-    def get_language_pairs(self, lang: str) -> set[str]:
+    def available_targets(self, lang: str) -> list[str]:
         result: set[str] = set()
         for rec in self.data:
             langs = rec["fields"]["Языки"]
@@ -19,7 +19,7 @@ class TranslatorsData:
             for other_lang in langs:
                 if other_lang != lang:
                     result.add(other_lang)
-        return result
+        return list(result)
 
     def find_next_translator(self, lang_from: str, lang_to: str,
                              prev: str | None = None) -> str | None:

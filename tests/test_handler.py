@@ -11,17 +11,26 @@ from .utils import given_messages, given_user, \
 
 WELCOME_KEYBOARD = [
     [types.InlineKeyboardButton(
+        text="укр ↔ нем", callback_data='l|123|ua|de|')],
+    [types.InlineKeyboardButton(
+        text="рус ↔ нем", callback_data='l|123|ru|de|')],
+    [types.InlineKeyboardButton(
+        text="Другие языки", callback_data='l|123|||')],
+]
+
+SELECT_FROM_KEYBOARD = [
+    [types.InlineKeyboardButton(
         text="украинский", callback_data='l|123|ua||')],
     [types.InlineKeyboardButton(
         text="русский", callback_data='l|123|ru||')],
 ]
 
 mock_data = Mock()
-mock_data.get_language_pairs = Mock(
-    return_value={'немецкий 🇩🇪', 'английский 🇬🇧', "грузинский"})
+mock_data.available_targets = Mock(
+    return_value=['немецкий', 'английский', "грузинский"])
 mock_data.find_next_translator = Mock(return_value="translator_username")
 mock_data.find_all_languages = Mock(
-    return_value={"русский", "украинский", 'немецкий 🇩🇪', 'английский 🇬🇧', "грузинский"})
+    return_value={"русский", "украинский", 'немецкий', 'английский', "грузинский"})
 
 mock_lingvo_data = LingvoData(mock_data, given_messages())
 
@@ -31,7 +40,7 @@ async def test_start():
     message_mock = AsyncMock(from_user=user_mock)
     await handler.start(message_mock, mock_lingvo_data)
     then_answer(
-        message_mock, "Привет @Joss!\nВыберите:", WELCOME_KEYBOARD)
+        message_mock, "_ welcome Joss", WELCOME_KEYBOARD)
 
 
 async def test_welcome():
@@ -40,7 +49,7 @@ async def test_welcome():
                           mock_lingvo_data,
                           chat_member_mock.bot)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
-                      'Привет @Joss!\nВыберите:',
+                      '_ welcome Joss',
                       WELCOME_KEYBOARD)
 
 
@@ -50,7 +59,7 @@ async def test_select_from_language():
     call.answer.assert_not_called()
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите:",
-                        WELCOME_KEYBOARD)
+                        SELECT_FROM_KEYBOARD)
 
 
 async def test_select_from_language_clicked_by_another_user():
@@ -72,11 +81,11 @@ async def test_select_language():
     then_message_edited(
         call.message, expected_message, [
             [
+                types.InlineKeyboardButton(text='немецкий 🇩🇪', callback_data='l|123|ua|de|'),
                 types.InlineKeyboardButton(text='английский 🇬🇧', callback_data='l|123|ua|en|'),
-                types.InlineKeyboardButton(text="грузинский", callback_data='l|123|ua|ka|')
             ],
             [
-                types.InlineKeyboardButton(text='немецкий 🇩🇪', callback_data='l|123|ua|de|'),
+                types.InlineKeyboardButton(text="грузинский", callback_data='l|123|ua|ka|')
             ],
             [
                 types.InlineKeyboardButton(text="Назад", callback_data="l|123|||")
@@ -95,7 +104,7 @@ async def test_select_language_clicked_by_another_user():
 
 async def test_select_translator():
     call = given_callback_query()
-    await handler.select_translator(call, make_cb(ID, "украинский", 'немецкий 🇩🇪'),
+    await handler.select_translator(call, make_cb(ID, "украинский", 'немецкий'),
                                     mock_lingvo_data)
 
     expected_buttons = [
@@ -111,14 +120,14 @@ async def test_select_translator():
     ]
     then_message_edited(call.message,
                         """Привет @Joss!
-Следующий переводчик для пары украинский - немецкий 🇩🇪: translator_username""",
+Следующий переводчик для пары украинский - немецкий: translator_username""",
                         expected_buttons=expected_buttons)
     call.answer.assert_not_called()
 
 
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий 🇩🇪'),
+    await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий'),
                                     mock_lingvo_data)
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")

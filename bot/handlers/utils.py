@@ -4,7 +4,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters.callback_data import CallbackData
 
-from bot.language import code_by_lang, UA, RU
+from bot.language import code_by_lang, UA, RU, popular_pairs, OTHER_LANGUAGES
 
 from_languages = [UA, RU]
 
@@ -15,14 +15,10 @@ class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
     to_lang: Optional[str]
     prev_translator: Optional[str]
 
+
 class FinishCallbackData(CallbackData, prefix="f", sep="|"):
     user_id: int
     from_lang: Optional[str]
-
-class PopularLanguagesCallbackData(CallbackData, prefix="p", sep="|"):
-    user_id: int
-    from_lang: Optional[str]
-    to_lang: Optional[str]
 
 
 def make_cb(
@@ -51,7 +47,19 @@ def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
     builder.adjust(1)
     return builder.as_markup()
 
+
+def format_popular_languages_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for pair, languages in popular_pairs.items():
+        from_lang, to_lang = languages
+        builder.button(text=pair, callback_data=make_cb(user_id, from_lang, to_lang))
+    builder.button(text=OTHER_LANGUAGES, callback_data=make_cb(user_id))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 T = TypeVar('T')
+
 
 def extract_kwarg(kwarg_name: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
