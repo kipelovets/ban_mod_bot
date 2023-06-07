@@ -1,4 +1,5 @@
 import logging
+import random
 from typing import Any
 from pyairtable.api.table import Table
 
@@ -19,24 +20,31 @@ class TranslatorsData:
             for other_lang in langs:
                 if other_lang != lang:
                     result.add(other_lang)
-        return list(result)
+        return sorted(result)
 
-    def find_next_translator(self, lang_from: str, lang_to: str,
-                             prev: str | None = None) -> str | None:
-        if prev == "":
-            prev = None
-        found_prev = False
+    def _find_translators(self, lang_from: str, lang_to: str) -> list[str]:
+        result: list[str] = []
         for rec in self.data:
             langs = rec["fields"]["Языки"]
             if lang_from not in langs or lang_to not in langs:
                 continue
-            if prev is not None and rec["fields"]["Телеграм-аккаунт"] == prev:
-                found_prev = True
-                continue
-            if prev is not None and not found_prev:
-                continue
-            return rec["fields"]["Телеграм-аккаунт"]
-        return None
+            result.append(rec["fields"]["Телеграм-аккаунт"])
+        return result
+
+    def find_next_translator(self, lang_from: str, lang_to: str,
+                             seed: int, prev: str | None = None) -> str | None:
+        translators = self._find_translators(lang_from, lang_to)
+        random.Random(seed).shuffle(translators)
+        ind = 0
+        if prev is not None:
+            try:
+                prev_index = translators.index(prev)
+                ind = prev_index + 1
+            except ValueError:
+                pass
+        if ind >= len(translators):
+            return None
+        return translators[ind]
 
     def find_all_languages(self) -> set[str]:
         result: set[str] = set()

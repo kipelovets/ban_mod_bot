@@ -1,28 +1,28 @@
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 from aiogram import types
 
 import bot.handlers.handlers as handler
 from bot.data import LingvoData
-from bot.handlers.utils import make_cb
+from bot.handlers.utils import TranslatorCallbackData, make_cb
 from .utils import given_messages, given_user, \
     given_new_chat_member, given_callback_query, ID, \
     then_message_edited, then_message_sent, then_answer
 
 WELCOME_KEYBOARD = [
     [types.InlineKeyboardButton(
-        text="укр ↔ нем", callback_data='l|123|ua|de|')],
+        text="укр ↔ нем", callback_data='l|123|ua|de')],
     [types.InlineKeyboardButton(
-        text="рус ↔ нем", callback_data='l|123|ru|de|')],
+        text="рус ↔ нем", callback_data='l|123|ru|de')],
     [types.InlineKeyboardButton(
-        text="Другие языки", callback_data='l|123|||')],
+        text="Другие языки", callback_data='l|123||')],
 ]
 
 SELECT_FROM_KEYBOARD = [
     [types.InlineKeyboardButton(
-        text="украинский", callback_data='l|123|ua||')],
+        text="украинский", callback_data='l|123|ua|')],
     [types.InlineKeyboardButton(
-        text="русский", callback_data='l|123|ru||')],
+        text="русский", callback_data='l|123|ru|')],
 ]
 
 mock_data = Mock()
@@ -72,8 +72,10 @@ async def test_select_from_language_clicked_by_another_user():
 
 async def test_select_language():
     call = given_callback_query()
-    await handler.select_language(call, make_cb(ID, "украинский"),
-                                  mock_lingvo_data)
+    with patch('random.randint') as m:
+        m.return_value = 1000
+        await handler.select_language(call, make_cb(ID, "украинский"),
+                                      mock_lingvo_data)
     call.answer.assert_not_called()
     expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
@@ -81,14 +83,14 @@ async def test_select_language():
     then_message_edited(
         call.message, expected_message, [
             [
-                types.InlineKeyboardButton(text='немецкий 🇩🇪', callback_data='l|123|ua|de|'),
-                types.InlineKeyboardButton(text='английский 🇬🇧', callback_data='l|123|ua|en|'),
+                types.InlineKeyboardButton(text='немецкий 🇩🇪', callback_data='t|123|ua|de||1000'),
+                types.InlineKeyboardButton(text='английский 🇬🇧', callback_data='t|123|ua|en||1000'),
             ],
             [
-                types.InlineKeyboardButton(text="грузинский", callback_data='l|123|ua|ka|')
+                types.InlineKeyboardButton(text="грузинский", callback_data='t|123|ua|ka||1000')
             ],
             [
-                types.InlineKeyboardButton(text="Назад", callback_data="l|123|||")
+                types.InlineKeyboardButton(text="Назад", callback_data="l|123||")
             ],
         ])
 
@@ -104,20 +106,18 @@ async def test_select_language_clicked_by_another_user():
 
 async def test_select_translator():
     call = given_callback_query()
-    await handler.select_translator(call, make_cb(ID, "украинский", 'немецкий'),
-                                    mock_lingvo_data)
+    await handler.select_translator(call, TranslatorCallbackData(
+        user_id=ID, from_lang="ua", to_lang="de", seed=1000),
+        mock_lingvo_data)
 
     expected_buttons = [
         [
             types.InlineKeyboardButton(
-                text="Следующий переводчик", callback_data="l|123|ua|de|translator_username"), ],
-        [
+                text="Следующий переводчик", callback_data="t|123|ua|de|translator_username|1000"), ], [
             types.InlineKeyboardButton(
-                text="_ button finish", callback_data="f|123|ua")],
-        [
+                text="_ button finish", callback_data="f|123|ua")], [
             types.InlineKeyboardButton(
-                text="Назад", callback_data="l|123|ua||")],
-    ]
+                text="Назад", callback_data="l|123|ua|")], ]
     then_message_edited(call.message,
                         """Привет @Joss!
 Следующий переводчик для пары украинский - немецкий: translator_username""",

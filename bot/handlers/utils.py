@@ -13,7 +13,6 @@ class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
     user_id: int
     from_lang: Optional[str]
     to_lang: Optional[str]
-    prev_translator: Optional[str]
 
 
 class FinishCallbackData(CallbackData, prefix="f", sep="|"):
@@ -21,18 +20,25 @@ class FinishCallbackData(CallbackData, prefix="f", sep="|"):
     from_lang: Optional[str]
 
 
+class TranslatorCallbackData(CallbackData, prefix="t", sep="|"):
+    user_id: int
+    from_lang: str
+    to_lang: str
+    prev_translator: Optional[str] = None
+    seed: int
+
+
 def make_cb(
         user_id: int,
         from_lang: str | None = None,
-        to_lang: str | None = None,
-        prev_translator: str | None = None):
+        to_lang: str | None = None):
     to_lang = code_by_lang(to_lang) if to_lang is not None else ""
     from_lang = code_by_lang(from_lang) if from_lang is not None else ""
     return LingvoCallbackData(
         user_id=user_id,
         from_lang=from_lang,
-        to_lang=to_lang,
-        prev_translator=prev_translator)
+        to_lang=to_lang
+    )
 
 
 def format_name(user: types.User) -> str:

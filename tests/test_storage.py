@@ -29,14 +29,14 @@ def make_test_data():
 
 def test_get_language_pairs():
     data = make_test_data()
-    assert ["испанский", "английский"] == data.available_targets("русский")
+    assert ["английский", "испанский"] == data.available_targets("русский")
 
 
-def find_next_translator():
+def test_find_next_translator():
     data = make_test_data()
-    assert None is data.find_next_translator("русский", "немецкий")
-    assert "@test" == data.find_next_translator("русский", "английский")
+    assert None is data.find_next_translator("русский", "немецкий", 0)
+    assert "@test" == data.find_next_translator("русский", "английский", 0)
     assert "@test2" == data.find_next_translator(
-        "русский", "английский", "@test")
-    assert "@test2" == data.find_next_translator(
-        "русский", "английский", "bad name")
+        "русский", "английский", 0, "@test")
+    assert "@test" == data.find_next_translator(
+        "русский", "английский", 0, "bad name")

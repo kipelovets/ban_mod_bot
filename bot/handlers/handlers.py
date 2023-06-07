@@ -1,14 +1,20 @@
 import logging
 import os
+import random
 
 from magic_filter import F
 
 from aiogram import types, Router, Bot
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from bot.handlers.utils import (extract_kwarg, format_from_language_keyboard, format_name, make_cb,
-                                format_popular_languages_keyboard)
-from bot.language import lang_by_code, prettify_lang, languages
+from bot.handlers.utils import (
+    TranslatorCallbackData,
+    extract_kwarg,
+    format_from_language_keyboard,
+    format_name,
+    make_cb,
+    format_popular_languages_keyboard)
+from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
 from bot.data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 
@@ -89,20 +95,25 @@ async def select_language(call: types.CallbackQuery, callback_data: LingvoCallba
         logger.info("select_language %s wrong user %s", user_id, call.from_user.id)
         await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
         return
+    if callback_data.from_lang is None:
+        logger.error("callback without from_lang %s", call.id)
+        return
     from_lang = lang_by_code(callback_data.from_lang)
     logger.info("select_language %s from_lang %s", user_id, from_lang)
 
     target_languages = lingvo_data.data.available_targets(from_lang)
+    seed = random.randint(0, 99999)
 
     builder = InlineKeyboardBuilder()
     for _, lang in languages.items():
         if lang in target_languages:
             builder.button(
                 text=prettify_lang(lang),
-                callback_data=make_cb(
+                callback_data=TranslatorCallbackData(
                     user_id=call.from_user.id,
-                    from_lang=from_lang,
-                    to_lang=lang))
+                    from_lang=callback_data.from_lang,
+                    to_lang=code_by_lang(lang),
+                    seed=seed))
 
     builder.adjust(2)
     builder.row(types.InlineKeyboardButton(text=lingvo_data.messages.button_back(from_lang),
@@ -116,9 +127,9 @@ async def select_language(call: types.CallbackQuery, callback_data: LingvoCallba
 
 
 @extract_kwarg("lingvo_data")
-@router.callback_query(LingvoCallbackData.filter(~(F.from_lang.is_(None) | F.to_lang.is_(None))))
+@router.callback_query(TranslatorCallbackData.filter())
 async def select_translator(call: types.CallbackQuery,
-                            callback_data: LingvoCallbackData,
+                            callback_data: TranslatorCallbackData,
                             lingvo_data: LingvoData):
     if call.message is None:
         logger.error("callback without message %s", call.id)
@@ -133,7 +144,7 @@ async def select_translator(call: types.CallbackQuery,
     prev_translator = callback_data.prev_translator
 
     translator = lingvo_data.data.find_next_translator(
-        from_lang, to_lang, prev_translator)
+        from_lang, to_lang, user_id, prev_translator)
 
     username = format_name(call.from_user)
 
@@ -155,11 +166,12 @@ async def select_translator(call: types.CallbackQuery,
         next_translator %s", user_id, from_lang, to_lang, prev_translator, translator)
     if translator is not None:
         builder.button(text=lingvo_data.messages.button_next_translator(from_lang),
-                       callback_data=make_cb(
-            call.from_user.id,
-            from_lang,
-            to_lang,
-            translator))
+                       callback_data=TranslatorCallbackData(
+            user_id=call.from_user.id,
+            from_lang=callback_data.from_lang,
+            to_lang=callback_data.to_lang,
+            seed=callback_data.seed,
+            prev_translator=translator))
         builder.button(text=lingvo_data.messages.button_finish(from_lang),
                        callback_data=FinishCallbackData(user_id=user_id,
                                                         from_lang=callback_data.from_lang))
