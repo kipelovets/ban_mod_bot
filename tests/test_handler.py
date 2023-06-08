@@ -11,9 +11,9 @@ from .utils import given_messages, given_user, \
 
 WELCOME_KEYBOARD = [
     [types.InlineKeyboardButton(
-        text="укр ↔ нем", callback_data='l|123|ua|de')],
+        text="укр ↔ нем", callback_data='t|123|ua|de||1000')],
     [types.InlineKeyboardButton(
-        text="рус ↔ нем", callback_data='l|123|ru|de')],
+        text="рус ↔ нем", callback_data='t|123|ru|de||1000')],
     [types.InlineKeyboardButton(
         text="Другие языки", callback_data='l|123||')],
 ]
@@ -38,16 +38,21 @@ mock_lingvo_data = LingvoData(mock_data, given_messages())
 async def test_start():
     user_mock = given_user()
     message_mock = AsyncMock(from_user=user_mock)
-    await handler.start(message_mock, mock_lingvo_data)
+
+    with patch('random.randint') as randint_mock:
+        randint_mock.return_value = 1000
+        await handler.start(message_mock, mock_lingvo_data)
     then_answer(
         message_mock, "_ welcome Joss", WELCOME_KEYBOARD)
 
 
 async def test_welcome():
     chat_member_mock = given_new_chat_member()
-    await handler.welcome(chat_member_mock,
-                          mock_lingvo_data,
-                          chat_member_mock.bot)
+    with patch('random.randint') as randint_mock:
+        randint_mock.return_value = 1000
+        await handler.welcome(chat_member_mock,
+                              mock_lingvo_data,
+                              chat_member_mock.bot)
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       '_ welcome Joss',
                       WELCOME_KEYBOARD)
@@ -72,8 +77,8 @@ async def test_select_from_language_clicked_by_another_user():
 
 async def test_select_language():
     call = given_callback_query()
-    with patch('random.randint') as m:
-        m.return_value = 1000
+    with patch('random.randint') as randint_mock:
+        randint_mock.return_value = 1000
         await handler.select_language(call, make_cb(ID, "украинский"),
                                       mock_lingvo_data)
     call.answer.assert_not_called()

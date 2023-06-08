@@ -1,3 +1,4 @@
+import random
 from typing import Optional, TypeVar, Callable, Any, Tuple
 
 from aiogram import types
@@ -54,11 +55,20 @@ def format_from_language_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def make_seed() -> int:
+    return random.randint(0, 99999)
+
+
 def format_popular_languages_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+    seed = make_seed()
     for pair, languages in popular_pairs.items():
         from_lang, to_lang = languages
-        builder.button(text=pair, callback_data=make_cb(user_id, from_lang, to_lang))
+        builder.button(text=pair, callback_data=TranslatorCallbackData(
+            user_id=user_id,
+            from_lang=code_by_lang(from_lang),
+            to_lang=code_by_lang(to_lang),
+            seed=seed))
     builder.button(text=OTHER_LANGUAGES, callback_data=make_cb(user_id))
     builder.adjust(1)
     return builder.as_markup()

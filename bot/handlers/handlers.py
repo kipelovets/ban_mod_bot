@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 
 from magic_filter import F
 
@@ -13,7 +12,8 @@ from bot.handlers.utils import (
     format_from_language_keyboard,
     format_name,
     make_cb,
-    format_popular_languages_keyboard)
+    format_popular_languages_keyboard,
+    make_seed)
 from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
 from bot.data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
@@ -102,7 +102,7 @@ async def select_language(call: types.CallbackQuery, callback_data: LingvoCallba
     logger.info("select_language %s from_lang %s", user_id, from_lang)
 
     target_languages = lingvo_data.data.available_targets(from_lang)
-    seed = random.randint(0, 99999)
+    seed = make_seed()
 
     builder = InlineKeyboardBuilder()
     for _, lang in languages.items():
