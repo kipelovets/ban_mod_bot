@@ -144,7 +144,7 @@ async def select_translator(call: types.CallbackQuery,
     prev_translator = callback_data.prev_translator
 
     translator = lingvo_data.data.find_next_translator(
-        from_lang, to_lang, user_id, prev_translator)
+        from_lang, to_lang, callback_data.seed, prev_translator)
 
     username = format_name(call.from_user)
 
