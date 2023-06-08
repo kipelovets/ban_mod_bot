@@ -60,6 +60,15 @@ async def test_welcome():
                       WELCOME_KEYBOARD)
 
 
+async def test_welcome_member_left():
+    chat_member_mock = given_new_chat_member()
+    chat_member_mock.new_chat_member.status = "left"
+    await handler.welcome(chat_member_mock,
+                          make_lingvo_data(),
+                          chat_member_mock.bot)
+    chat_member_mock.bot.send_message.assert_not_called()
+
+
 async def test_select_from_language():
     call = given_callback_query()
     await handler.select_from_language(call, make_cb(ID), make_lingvo_data())
@@ -131,7 +140,8 @@ async def test_select_translator():
 Следующий переводчик для пары украинский - немецкий: translator_username""",
                         expected_buttons=expected_buttons)
     call.answer.assert_not_called()
-    lingvo_data.data.find_next_translator.assert_called_once_with(
+    method_mock: Mock = lingvo_data.data.find_next_translator  # type: ignore
+    method_mock.assert_called_once_with(
         "украинский", 'немецкий', 1000, None)
 
 

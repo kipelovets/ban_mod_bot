@@ -33,7 +33,7 @@ def given_messages() -> Messages:
 
 def given_new_chat_member() -> Mock:
     user_mock = given_user()
-    new_chat_member_mock = Mock(user=user_mock)
+    new_chat_member_mock = Mock(user=user_mock, status="member")
     bot_mock = AsyncMock()
     chat_mock = Mock(id=ID)
     return Mock(

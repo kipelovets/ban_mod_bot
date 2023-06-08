@@ -38,6 +38,8 @@ async def start(message: types.Message, lingvo_data: LingvoData):
 @extract_kwarg("lingvo_data")
 @router.chat_member()
 async def welcome(chat_member: types.ChatMemberUpdated, lingvo_data: LingvoData, bot: Bot):
+    if chat_member.new_chat_member.status != 'member':
+        return
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     await bot.send_message(chat_member.chat.id,
