@@ -39,9 +39,9 @@ async def start(message: types.Message, lingvo_data: LingvoData, analytics: Anal
 
 @extract_kwargs("lingvo_data", "analytics")
 @router.chat_member()
-async def welcome(chat_member: types.ChatMemberUpdated, 
-                  lingvo_data: LingvoData, 
-                  bot: Bot, 
+async def welcome(chat_member: types.ChatMemberUpdated,
+                  lingvo_data: LingvoData,
+                  bot: Bot,
                   analytics: Analytics):
     if chat_member.new_chat_member.status != 'member':
         return
@@ -57,7 +57,7 @@ async def welcome(chat_member: types.ChatMemberUpdated,
 @router.callback_query(FinishCallbackData.filter())
 async def finish(call: types.CallbackQuery,
                  callback_data: FinishCallbackData,
-                 lingvo_data: LingvoData, 
+                 lingvo_data: LingvoData,
                  analytics: Analytics):
     if call.message is None:
         logger.error("callback without message %s", call.id)
@@ -78,7 +78,7 @@ async def finish(call: types.CallbackQuery,
 @router.callback_query(LingvoCallbackData.filter(F.from_lang.is_(None) & F.to_lang.is_(None)))
 async def select_from_language(call: types.CallbackQuery,
                                callback_data: LingvoCallbackData,
-                               lingvo_data: LingvoData, 
+                               lingvo_data: LingvoData,
                                analytics: Analytics):
     if call.message is None:
         logger.error("callback without message %s", call.id)
@@ -97,9 +97,9 @@ async def select_from_language(call: types.CallbackQuery,
 
 @extract_kwargs("lingvo_data", "analytics")
 @router.callback_query(LingvoCallbackData.filter(F.to_lang.is_(None)))
-async def select_language(call: types.CallbackQuery, 
+async def select_language(call: types.CallbackQuery,
                           callback_data: LingvoCallbackData,
-                          lingvo_data: LingvoData, 
+                          lingvo_data: LingvoData,
                           analytics: Analytics):
     if call.message is None:
         logger.error("callback without message %s", call.id)
@@ -145,7 +145,7 @@ async def select_language(call: types.CallbackQuery,
 @router.callback_query(TranslatorCallbackData.filter())
 async def select_translator(call: types.CallbackQuery,
                             callback_data: TranslatorCallbackData,
-                            lingvo_data: LingvoData, 
+                            lingvo_data: LingvoData,
                             analytics: Analytics):
     if call.message is None:
         logger.error("callback without message %s", call.id)
@@ -179,23 +179,22 @@ async def select_translator(call: types.CallbackQuery,
         await call.message.edit_text(message, reply_markup=builder.as_markup())
         return
 
-
     logger.info("select_translator %s from_lang %s to_lang %s prev_translator %s \
         next_translator %s", user_id, from_lang, to_lang, prev_translator, translator)
     analytics.translator_option(user_id, from_lang, to_lang, translator)
-    
+
     builder.button(text=lingvo_data.messages.button_next_translator(from_lang),
-                    callback_data=TranslatorCallbackData(
+                   callback_data=TranslatorCallbackData(
         user_id=call.from_user.id,
         from_lang=callback_data.from_lang,
         to_lang=callback_data.to_lang,
         seed=callback_data.seed,
         prev_translator=translator))
     builder.button(text=lingvo_data.messages.button_finish(from_lang),
-                    callback_data=FinishCallbackData(user_id=user_id,
+                   callback_data=FinishCallbackData(user_id=user_id,
                                                     from_lang=callback_data.from_lang))
     builder.button(text=lingvo_data.messages.button_back(from_lang),
-                    callback_data=make_cb(
+                   callback_data=make_cb(
         call.from_user.id,
         from_lang))
     builder.adjust(1)

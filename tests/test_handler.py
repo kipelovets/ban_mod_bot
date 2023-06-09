@@ -36,6 +36,7 @@ def make_lingvo_data() -> LingvoData:
 
     return LingvoData(mock_data, given_messages())
 
+
 def make_analytics_mock() -> Mock:
     return Mock()
 
@@ -85,7 +86,10 @@ async def test_select_from_language():
 
 async def test_select_from_language_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_from_language(call, make_cb(ID + 1), make_lingvo_data(), make_analytics_mock())
+    await handler.select_from_language(call,
+                                       make_cb(ID + 1),
+                                       make_lingvo_data(),
+                                       make_analytics_mock())
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -135,7 +139,8 @@ async def test_select_translator():
     expected_buttons = [
         [
             types.InlineKeyboardButton(
-                text="Следующий переводчик", callback_data="t|123|ua|de|translator_username|1000"), ], [
+                text="Следующий переводчик", callback_data="t|123|ua|de|translator_username|1000"),
+        ], [
             types.InlineKeyboardButton(
                 text="_ button finish", callback_data="f|123|ua")], [
             types.InlineKeyboardButton(
