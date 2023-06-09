@@ -77,13 +77,13 @@ def format_popular_languages_keyboard(user_id: int) -> types.InlineKeyboardMarku
 T = TypeVar('T')
 
 
-def extract_kwarg(kwarg_name: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
+def extract_kwargs(*kwarg_names: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapper(*args: Tuple[Any], **kwargs: Any) -> T:
-            if kwarg_name in kwargs:
-                value = kwargs.pop(kwarg_name)
-                # Define the argument on the function's argument list
-                args += (value,)
+            for kwarg_name in kwarg_names:
+                if kwarg_name in kwargs:
+                    value = kwargs.pop(kwarg_name)
+                    args += (value,)
             return func(*args, **kwargs)
         return wrapper
     return decorator

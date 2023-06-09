@@ -36,6 +36,9 @@ def make_lingvo_data() -> LingvoData:
 
     return LingvoData(mock_data, given_messages())
 
+def make_analytics_mock() -> Mock:
+    return Mock()
+
 
 async def test_start():
     user_mock = given_user()
@@ -43,7 +46,7 @@ async def test_start():
 
     with patch('random.randint') as randint_mock:
         randint_mock.return_value = 1000
-        await handler.start(message_mock, make_lingvo_data())
+        await handler.start(message_mock, make_lingvo_data(), make_analytics_mock())
     then_answer(
         message_mock, "_ welcome Joss", WELCOME_KEYBOARD)
 
@@ -54,7 +57,8 @@ async def test_welcome():
         randint_mock.return_value = 1000
         await handler.welcome(chat_member_mock,
                               make_lingvo_data(),
-                              chat_member_mock.bot)
+                              chat_member_mock.bot,
+                              make_analytics_mock())
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       '_ welcome Joss',
                       WELCOME_KEYBOARD)
@@ -65,13 +69,14 @@ async def test_welcome_member_left():
     chat_member_mock.new_chat_member.status = "left"
     await handler.welcome(chat_member_mock,
                           make_lingvo_data(),
-                          chat_member_mock.bot)
+                          chat_member_mock.bot,
+                          make_analytics_mock())
     chat_member_mock.bot.send_message.assert_not_called()
 
 
 async def test_select_from_language():
     call = given_callback_query()
-    await handler.select_from_language(call, make_cb(ID), make_lingvo_data())
+    await handler.select_from_language(call, make_cb(ID), make_lingvo_data(), make_analytics_mock())
     call.answer.assert_not_called()
     then_message_edited(call.message,
                         "Привет @Joss!\nВыберите:",
@@ -80,7 +85,7 @@ async def test_select_from_language():
 
 async def test_select_from_language_clicked_by_another_user():
     call = given_callback_query()
-    await handler.select_from_language(call, make_cb(ID + 1), make_lingvo_data())
+    await handler.select_from_language(call, make_cb(ID + 1), make_lingvo_data(), make_analytics_mock())
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -91,7 +96,7 @@ async def test_select_language():
     with patch('random.randint') as randint_mock:
         randint_mock.return_value = 1000
         await handler.select_language(call, make_cb(ID, "украинский"),
-                                      make_lingvo_data())
+                                      make_lingvo_data(), make_analytics_mock())
     call.answer.assert_not_called()
     expected_message = """[UA] Привет @Joss!
 Выбранный язык: украинский
@@ -114,7 +119,7 @@ async def test_select_language():
 async def test_select_language_clicked_by_another_user():
     call = given_callback_query()
     await handler.select_language(call, make_cb(ID + 1, "украинский"),
-                                  make_lingvo_data())
+                                  make_lingvo_data(), make_analytics_mock())
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
@@ -125,7 +130,7 @@ async def test_select_translator():
     lingvo_data = make_lingvo_data()
     await handler.select_translator(call, TranslatorCallbackData(
         user_id=ID, from_lang="ua", to_lang="de", seed=1000),
-        lingvo_data)
+        lingvo_data, make_analytics_mock())
 
     expected_buttons = [
         [
@@ -148,7 +153,7 @@ async def test_select_translator():
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
     await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий'),
-                                    make_lingvo_data())
+                                    make_lingvo_data(), make_analytics_mock())
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
