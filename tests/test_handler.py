@@ -47,7 +47,7 @@ async def test_start():
 
     with patch('random.randint') as randint_mock:
         randint_mock.return_value = 1000
-        await handler.start(message_mock, make_lingvo_data(), make_analytics_mock())
+        await handler.start(message_mock, make_lingvo_data(), make_analytics_mock(), AsyncMock())
     then_answer(
         message_mock, "_ welcome Joss", WELCOME_KEYBOARD)
 

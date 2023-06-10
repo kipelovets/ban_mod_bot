@@ -7,6 +7,7 @@ from aiogram import types, Router, Bot
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.analytics import Analytics
+from bot.handlers.gc import GC
 from bot.handlers.utils import (
     TranslatorCallbackData,
     extract_kwargs,
@@ -22,19 +23,24 @@ from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 logger = logging.getLogger(__name__)
 router = Router()
 SUPER_ADMIN = int(os.getenv('SUPER_ADMIN', ""))
+MESSAGE_REMOVE_TIMEOUT = 60*60
 
 
-@extract_kwargs("lingvo_data", "analytics")
+@extract_kwargs("lingvo_data", "analytics", "gc")
 @router.message(Command('start'))
-async def start(message: types.Message, lingvo_data: LingvoData, analytics: Analytics):
+async def start(message: types.Message,
+                lingvo_data: LingvoData,
+                analytics: Analytics,
+                gc: GC):
     if message.from_user is None:
         logger.error("message without from_user %s", message.message_id)
         return
     logger.info("start %s", message.from_user.id)
     analytics.start(message.from_user.id)
-    await message.answer(
+    sent_message = await message.answer(
         lingvo_data.messages.welcome_choose_popular_pairs(format_name(message.from_user)),
         reply_markup=format_popular_languages_keyboard(message.from_user.id))
+    await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
 @extract_kwargs("lingvo_data", "analytics")

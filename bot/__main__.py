@@ -4,6 +4,7 @@ import sys
 import asyncio
 from aiogram import Bot, Dispatcher
 from bot.data_loader import load_lingvo_data
+from bot.handlers.gc import GC
 from bot.handlers.handlers import router
 from bot.middleware import LingvoDataMiddleware
 from bot.analytics import Analytics
@@ -24,8 +25,8 @@ async def main():
     bot = Bot(token=token)
 
     api_secret = os.getenv("GA_API_SECRET")
-    measurement_id=os.getenv("GA_MEASUREMENT_ID")
-    client_id=os.getenv("GA_CLIENT_ID")
+    measurement_id = os.getenv("GA_MEASUREMENT_ID")
+    client_id = os.getenv("GA_CLIENT_ID")
 
     if api_secret is None or measurement_id is None or client_id is None:
         print("Error: required env vars for analytics not defined")
@@ -38,7 +39,7 @@ async def main():
     dispatcher = Dispatcher()
     dispatcher.include_router(router)
 
-    middleware = LingvoDataMiddleware(load_lingvo_data(), analytics)
+    middleware = LingvoDataMiddleware(load_lingvo_data(), analytics, GC(bot))
     router.message.middleware(middleware)
     router.callback_query.middleware(middleware)
     router.chat_member.middleware(middleware)
