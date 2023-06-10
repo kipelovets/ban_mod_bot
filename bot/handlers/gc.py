@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from aiogram import Bot
 
 logger = logging.getLogger(__name__)
-MESSAGE = "This message expired\nPlease contact the bot directly: @lingvo_catalogue_bot"
 
 
 @dataclass
@@ -18,9 +17,11 @@ class GC:
     time: int = 0
     queue: list[Task] = []
     bot: Bot
+    message: str
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Bot, message: str):
         self.bot = bot
+        self.message = message
         asyncio.get_running_loop().create_task(self.check_queue())
 
     async def check_queue(self):
@@ -33,7 +34,7 @@ class GC:
             for task in ready:
                 try:
                     self.queue.remove(task)
-                    await self.bot.edit_message_text(MESSAGE, task.chat_id, task.message_id)
+                    await self.bot.edit_message_text(self.message, task.chat_id, task.message_id)
                 except Exception as e:
                     logger.error(type(e))
 

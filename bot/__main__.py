@@ -39,7 +39,10 @@ async def main():
     dispatcher = Dispatcher()
     dispatcher.include_router(router)
 
-    middleware = LingvoDataMiddleware(load_lingvo_data(), analytics, GC(bot))
+    lingvo_data = load_lingvo_data()
+    gc = GC(bot, lingvo_data.messages.message_expired())
+
+    middleware = LingvoDataMiddleware(lingvo_data, analytics, gc)
     router.message.middleware(middleware)
     router.callback_query.middleware(middleware)
     router.chat_member.middleware(middleware)
