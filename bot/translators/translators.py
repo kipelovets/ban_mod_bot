@@ -54,7 +54,7 @@ class TranslatorsData:
         return result
 
 
-def load(api_key: str, base_id: str, table_name: str) -> TranslatorsData:
+def load_translators(api_key: str, base_id: str, table_name: str) -> TranslatorsData:
     logger.info("Loading translators")
     table = Table(api_key, base_id, table_name)
     data: list[dict[str, Any]] = table.all()

@@ -3,7 +3,7 @@ import os
 import sys
 import asyncio
 from aiogram import Bot, Dispatcher
-from bot.data_loader import load_lingvo_data
+from bot.lingvo_data import load_lingvo_data
 from bot.handlers.gc import GC
 from bot.handlers.handlers import router
 from bot.middleware import LingvoDataMiddleware

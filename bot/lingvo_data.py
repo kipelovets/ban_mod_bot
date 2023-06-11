@@ -1,8 +1,17 @@
+import dataclasses
 import os
 import sys
-from bot.data import LingvoData
+
+from bot.messages.messages import Messages
 from bot.messages import load_messages
-from bot.storage import load
+from bot.translators.translators import TranslatorsData, load_translators
+
+
+@dataclasses.dataclass
+class LingvoData:
+    def __init__(self, data: TranslatorsData, messages: Messages):
+        self.data = data
+        self.messages = messages
 
 
 def load_lingvo_data() -> LingvoData:
@@ -16,5 +25,5 @@ def load_lingvo_data() -> LingvoData:
         sys.exit(1)
 
     return LingvoData(
-        load(api_key, base_id, table_name),
+        load_translators(api_key, base_id, table_name),
         load_messages(api_key, base_id, messages_table_name))

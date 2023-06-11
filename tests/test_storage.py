@@ -1,4 +1,4 @@
-from bot.storage import TranslatorsData
+from bot.translators import TranslatorsData
 
 
 def make_test_data():

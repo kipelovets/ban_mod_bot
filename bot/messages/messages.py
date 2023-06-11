@@ -1,4 +1,8 @@
+import logging
+from pyairtable.api.table import Table
 from ..language import RU
+
+logger = logging.getLogger(__name__)
 
 
 class Messages:
@@ -54,3 +58,16 @@ class Messages:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")
         return self.translations[key][from_lang]
+
+
+def load_messages(api_key: str, base_id: str, table_name: str) -> Messages:
+    table = Table(api_key, base_id, table_name)
+
+    data = {}
+    rec: dict[str, dict[str, str]]
+    for rec in table.all():
+        data[rec['fields']['id']] = rec['fields']
+
+    logger.info("loaded messages: %s", len(data))
+
+    return Messages(data)

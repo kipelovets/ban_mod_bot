@@ -18,7 +18,7 @@ from bot.handlers.utils import (
     format_popular_languages_keyboard,
     make_seed)
 from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
-from bot.data import LingvoData
+from bot.lingvo_data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 
 logger = logging.getLogger(__name__)

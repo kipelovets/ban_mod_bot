@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 from aiogram import types
 
 import bot.handlers.handlers as handler
-from bot.data import LingvoData
+from bot.lingvo_data import LingvoData
 from bot.handlers.utils import TranslatorCallbackData, make_cb
 from .utils import given_messages, given_user, \
     given_new_chat_member, given_callback_query, ID, \
