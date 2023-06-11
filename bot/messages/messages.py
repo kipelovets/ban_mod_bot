@@ -47,6 +47,9 @@ class Messages:
     def message_expired(self) -> str:
         return self._t("message_expired", RU)
 
+    def next_translator_timeout(self, from_lang: str) -> str:
+        return self._t("next_translator_timeout", from_lang)
+
     def _t(self, key: str, from_lang: str) -> str:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")
