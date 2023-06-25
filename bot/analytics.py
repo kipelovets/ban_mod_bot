@@ -36,6 +36,10 @@ class Analytics:
         self._event("translator_option", user_id=str(user_id), lang_from=lang_from,
                     lang_to=lang_to)
 
+    def too_fast(self, user_id: int, lang_from: str, lang_to: str):
+        self._event("too_fast", user_id=str(user_id), lang_from=lang_from,
+                    lang_to=lang_to)
+
     def _event(self, name: str, **kwargs: str):
         event = self.ga.create_new_event(name=name)
         for key, value in kwargs.items():

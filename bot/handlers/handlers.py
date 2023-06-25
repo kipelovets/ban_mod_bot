@@ -20,12 +20,12 @@ from bot.handlers.utils import (
 from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
 from bot.lingvo_data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
+from bot.timer import Timer
 
 logger = logging.getLogger(__name__)
 router = Router()
 SUPER_ADMIN = int(os.getenv('SUPER_ADMIN', ""))
 MESSAGE_REMOVE_TIMEOUT = 60 * 60
-NEXT_TRANSLATOR_TIMEOUT = 60
 
 
 @extract_kwargs("lingvo_data", "analytics", "gc")
@@ -149,12 +149,13 @@ async def select_language(call: types.CallbackQuery,
     await call.message.edit_text(message, reply_markup=builder.as_markup())
 
 
-@extract_kwargs("lingvo_data", "analytics")
+@extract_kwargs("lingvo_data", "analytics", "timer")
 @router.callback_query(TranslatorCallbackData.filter())
 async def select_translator(call: types.CallbackQuery,
                             callback_data: TranslatorCallbackData,
                             lingvo_data: LingvoData,
-                            analytics: Analytics):
+                            analytics: Analytics,
+                            timer: Timer):
     if call.message is None:
         logger.error("callback without message %s", call.id)
         return
@@ -169,9 +170,8 @@ async def select_translator(call: types.CallbackQuery,
     prev_translator = callback_data.prev_translator
     current_time = datetime.now()
 
-    if current_time.timestamp() - call.message.date.timestamp() < NEXT_TRANSLATOR_TIMEOUT or \
-            (call.message.edit_date is not None and
-             current_time.timestamp() - float(call.message.edit_date) < NEXT_TRANSLATOR_TIMEOUT):
+    if not timer.can_send_translator_option(user_id):
+        analytics.too_fast(user_id, from_lang, to_lang)
         logger.warning(
             "select_translator too fast %s (%s, %s, %s)",
             user_id,

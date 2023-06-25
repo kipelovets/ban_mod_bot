@@ -5,6 +5,7 @@ from aiogram import types
 import bot.handlers.handlers as handler
 from bot.lingvo_data import LingvoData
 from bot.handlers.utils import TranslatorCallbackData, make_cb
+from bot.timer import Timer
 from .utils import given_messages, given_user, \
     given_new_chat_member, given_callback_query, ID, \
     then_message_edited, then_message_sent, then_answer
@@ -134,7 +135,7 @@ async def test_select_translator():
     lingvo_data = make_lingvo_data()
     await handler.select_translator(call, TranslatorCallbackData(
         user_id=ID, from_lang="ua", to_lang="de", seed=1000),
-        lingvo_data, make_analytics_mock())
+        lingvo_data, make_analytics_mock(), Timer())
 
     expected_buttons = [
         [
@@ -158,7 +159,7 @@ async def test_select_translator():
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
     await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий'),
-                                    make_lingvo_data(), make_analytics_mock())
+                                    make_lingvo_data(), make_analytics_mock(), Timer())
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
