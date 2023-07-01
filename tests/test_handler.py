@@ -60,7 +60,8 @@ async def test_welcome():
         await handler.welcome(chat_member_mock,
                               make_lingvo_data(),
                               chat_member_mock.bot,
-                              make_analytics_mock())
+                              make_analytics_mock(), 
+                              AsyncMock())
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       '_ welcome Joss',
                       WELCOME_KEYBOARD)
@@ -72,7 +73,8 @@ async def test_welcome_member_left():
     await handler.welcome(chat_member_mock,
                           make_lingvo_data(),
                           chat_member_mock.bot,
-                          make_analytics_mock())
+                          make_analytics_mock(),
+                          AsyncMock())
     chat_member_mock.bot.send_message.assert_not_called()
 
 

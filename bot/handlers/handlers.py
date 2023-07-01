@@ -45,20 +45,22 @@ async def start(message: types.Message,
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
-@extract_kwargs("lingvo_data", "analytics")
+@extract_kwargs("lingvo_data", "analytics", "gc")
 @router.chat_member()
 async def welcome(chat_member: types.ChatMemberUpdated,
                   lingvo_data: LingvoData,
                   bot: Bot,
-                  analytics: Analytics):
+                  analytics: Analytics,
+                  gc: GC):
     if chat_member.new_chat_member.status != 'member':
         return
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     analytics.chat_member(user.id)
-    await bot.send_message(chat_member.chat.id,
+    sent_message = await bot.send_message(chat_member.chat.id,
                            lingvo_data.messages.welcome_choose_popular_pairs(format_name(user)),
                            reply_markup=format_popular_languages_keyboard(user.id))
+    await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
 @extract_kwargs("lingvo_data", "analytics")
