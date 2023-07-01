@@ -5,7 +5,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters.callback_data import CallbackData
 
-from bot.language import NO_HELP_NEEDED, code_by_lang, UA, RU, popular_pairs, OTHER_LANGUAGES
+from bot.language import code_by_lang, UA, RU, popular_pairs
 
 from_languages = [UA, RU]
 
@@ -59,7 +59,9 @@ def make_seed() -> int:
     return random.randint(0, 99999)
 
 
-def format_welcome_message_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
+def format_welcome_message_keyboard(user_id: int,
+                                    button_other: str,
+                                    button_no: str) -> types.InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     seed = make_seed()
     for pair, languages in popular_pairs.items():
@@ -69,8 +71,8 @@ def format_welcome_message_keyboard(user_id: int) -> types.InlineKeyboardMarkup:
             from_lang=code_by_lang(from_lang),
             to_lang=code_by_lang(to_lang),
             seed=seed))
-    builder.button(text=OTHER_LANGUAGES, callback_data=make_cb(user_id))
-    builder.button(text=NO_HELP_NEEDED,
+    builder.button(text=button_other, callback_data=make_cb(user_id))
+    builder.button(text=button_no,
                    callback_data=FinishCallbackData(user_id=user_id,
                                                     from_lang=code_by_lang(RU)))
     builder.adjust(1)

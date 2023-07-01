@@ -54,6 +54,15 @@ class Messages:
     def next_translator_timeout(self, from_lang: str) -> str:
         return self._t("next_translator_timeout", from_lang)
 
+    def other_languages(self, from_lang: str) -> str:
+        return self._t("other_languages", from_lang)
+
+    def no_help_needed(self, from_lang: str) -> str:
+        return self._t("no_help_needed", from_lang)
+
+    def welcome_to_chat(self, username: str, from_lang: str) -> str:
+        return self._t("welcome_to_chat", from_lang).format(username=username)
+
     def _t(self, key: str, from_lang: str) -> str:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")

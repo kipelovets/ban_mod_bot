@@ -15,7 +15,7 @@ from bot.handlers.utils import (
     make_cb,
     format_welcome_message_keyboard,
     make_seed)
-from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
+from bot.language import DEFAULT_LANGUAGE, code_by_lang, lang_by_code, prettify_lang, languages
 from bot.lingvo_data import LingvoData
 from bot.handlers.utils import LingvoCallbackData, FinishCallbackData
 from bot.timer import Timer
@@ -37,9 +37,13 @@ async def start(message: types.Message,
         return
     logger.info("start %s", message.from_user.id)
     analytics.start(message.from_user.id)
+    keyboard = format_welcome_message_keyboard(
+        message.from_user.id,
+        lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
+        lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
     sent_message = await message.answer(
         lingvo_data.messages.welcome_choose_popular_pairs(format_name(message.from_user)),
-        reply_markup=format_welcome_message_keyboard(message.from_user.id))
+        reply_markup=keyboard)
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
@@ -56,9 +60,13 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     analytics.chat_member(user.id)
     text = lingvo_data.messages.welcome_choose_popular_pairs(format_name(user))
+    keyboard = format_welcome_message_keyboard(
+        user.id,
+        lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
+        lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
     sent_message = await bot.send_message(chat_member.chat.id,
                                           text,
-                                          reply_markup=format_welcome_message_keyboard(user.id))
+                                          reply_markup=keyboard)
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
