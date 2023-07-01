@@ -17,6 +17,8 @@ WELCOME_KEYBOARD = [
         text="рус ↔ нем", callback_data='t|123|ru|de||1000')],
     [types.InlineKeyboardButton(
         text="Другие языки", callback_data='l|123||')],
+    [types.InlineKeyboardButton(
+        text="Мне не нужна помощь", callback_data='f|123|ru')],
 ]
 
 SELECT_FROM_KEYBOARD = [

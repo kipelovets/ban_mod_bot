@@ -5,6 +5,7 @@ EN = 'английский'
 PL = 'польский'
 
 OTHER_LANGUAGES = 'Другие языки'
+NO_HELP_NEEDED = 'Мне не нужна помощь'
 
 popular_pairs = {
     "укр ↔ нем": (UA, DE),

@@ -15,7 +15,7 @@ from bot.handlers.utils import (
     format_from_language_keyboard,
     format_name,
     make_cb,
-    format_popular_languages_keyboard,
+    format_welcome_message_keyboard,
     make_seed)
 from bot.language import code_by_lang, lang_by_code, prettify_lang, languages
 from bot.lingvo_data import LingvoData
@@ -41,7 +41,7 @@ async def start(message: types.Message,
     analytics.start(message.from_user.id)
     sent_message = await message.answer(
         lingvo_data.messages.welcome_choose_popular_pairs(format_name(message.from_user)),
-        reply_markup=format_popular_languages_keyboard(message.from_user.id))
+        reply_markup=format_welcome_message_keyboard(message.from_user.id))
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
@@ -59,7 +59,7 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     analytics.chat_member(user.id)
     sent_message = await bot.send_message(chat_member.chat.id,
                            lingvo_data.messages.welcome_choose_popular_pairs(format_name(user)),
-                           reply_markup=format_popular_languages_keyboard(user.id))
+                           reply_markup=format_welcome_message_keyboard(user.id))
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
