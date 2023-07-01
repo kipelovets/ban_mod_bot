@@ -9,6 +9,7 @@ from bot.handlers.handlers import router
 from bot.middleware import LingvoDataMiddleware
 from bot.analytics import Analytics
 from bot.timer import Timer
+from bot.storage import Storage
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -43,7 +44,7 @@ async def main():
     lingvo_data = load_lingvo_data()
     gc = GC(bot, lingvo_data.messages.message_expired())
 
-    timer = Timer()
+    timer = Timer(Storage("db.sqlite"))
 
     middleware = LingvoDataMiddleware(lingvo_data, analytics, gc, timer)
     router.message.middleware(middleware)

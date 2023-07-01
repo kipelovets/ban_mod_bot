@@ -7,21 +7,21 @@ TABLE_DEF = f"CREATE TABLE IF NOT EXISTS {TABLE}" + \
 
 
 class Storage:
-    con: sqlite3.Connection
+    _con: sqlite3.Connection
 
     def __init__(self, db: str):
-        self.con = sqlite3.connect(db)
-        self.con.execute(TABLE_DEF)
-        self.con.commit()
+        self._con = sqlite3.connect(db)
+        self._con.execute(TABLE_DEF)
+        self._con.commit()
 
     def record_translator_option(self, user_id: int):
-        self.con.execute(
-            f"INSERT INTO {TABLE} (user_id, date_sent) values (?, unixepoch())",
+        self._con.execute(
+            f"REPLACE INTO {TABLE} (user_id, date_sent) values (?, STRFTIME('%s'))",
             [user_id])
-        self.con.commit()
+        self._con.commit()
 
     def last_translator_option_time(self, user_id: int) -> datetime | None:
-        cur = self.con.cursor()
+        cur = self._con.cursor()
         cur.execute(f"SELECT date_sent FROM {TABLE} WHERE user_id = ?", [user_id])
         row = cur.fetchone()
         if row is None:

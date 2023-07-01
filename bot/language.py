@@ -59,7 +59,6 @@ languages = {
     'et': 'эстонский',
     'jp': 'японский',
 }
-#
 
 
 def lang_by_code(code: str | None) -> str:

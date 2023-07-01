@@ -130,12 +130,18 @@ async def test_select_language_clicked_by_another_user():
     call.message.edit_text.assert_not_called()
 
 
+def mock_storage():
+    storage = Mock()
+    storage.last_translator_option_time = Mock(return_value=None)
+    return storage
+
+
 async def test_select_translator():
     call = given_callback_query()
     lingvo_data = make_lingvo_data()
     await handler.select_translator(call, TranslatorCallbackData(
         user_id=ID, from_lang="ua", to_lang="de", seed=1000),
-        lingvo_data, make_analytics_mock(), Timer())
+        lingvo_data, make_analytics_mock(), Timer(mock_storage()))
 
     expected_buttons = [
         [
@@ -159,7 +165,8 @@ async def test_select_translator():
 async def test_select_translator_clicked_by_another_user():
     call = given_callback_query()
     await handler.select_translator(call, make_cb(ID + 1, "украинский", 'немецкий'),
-                                    make_lingvo_data(), make_analytics_mock(), Timer())
+                                    make_lingvo_data(), make_analytics_mock(),
+                                    Timer(mock_storage()))
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
