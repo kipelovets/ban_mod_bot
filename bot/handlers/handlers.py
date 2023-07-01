@@ -2,9 +2,7 @@ import logging
 import os
 from datetime import datetime
 
-from magic_filter import F
-
-from aiogram import types, Router, Bot
+from aiogram import types, Router, Bot, F
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.analytics import Analytics
@@ -57,9 +55,10 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     analytics.chat_member(user.id)
+    text = lingvo_data.messages.welcome_choose_popular_pairs(format_name(user))
     sent_message = await bot.send_message(chat_member.chat.id,
-                           lingvo_data.messages.welcome_choose_popular_pairs(format_name(user)),
-                           reply_markup=format_welcome_message_keyboard(user.id))
+                                          text,
+                                          reply_markup=format_welcome_message_keyboard(user.id))
     await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 

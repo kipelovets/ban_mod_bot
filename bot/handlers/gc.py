@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 import asyncio
 import logging
 from dataclasses import dataclass
