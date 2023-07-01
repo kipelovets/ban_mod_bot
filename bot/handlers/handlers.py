@@ -29,7 +29,7 @@ MESSAGE_REMOVE_TIMEOUT = 60 * 60
 
 
 @extract_kwargs("lingvo_data", "analytics", "gc")
-@router.message(Command('start'))
+@router.message(Command('start'), F.chat.type.in_({"private"}))
 async def start(message: types.Message,
                 lingvo_data: LingvoData,
                 analytics: Analytics,
