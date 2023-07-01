@@ -22,9 +22,9 @@ class GC:
     def __init__(self, bot: Bot, message: str):
         self.bot = bot
         self.message = message
-        asyncio.get_running_loop().create_task(self.check_queue())
+        asyncio.get_running_loop().create_task(self._check_queue())
 
-    async def check_queue(self):
+    async def _check_queue(self):
         while True:
             await asyncio.sleep(1)
             self.time += 1
