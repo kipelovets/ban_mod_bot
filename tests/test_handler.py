@@ -16,9 +16,9 @@ WELCOME_KEYBOARD = [
     [types.InlineKeyboardButton(
         text="рус ↔ нем", callback_data='t|123|ru|de||1000')],
     [types.InlineKeyboardButton(
-        text="Другие языки", callback_data='l|123||')],
+        text="_ other_languages", callback_data='l|123||')],
     [types.InlineKeyboardButton(
-        text="Мне не нужна помощь", callback_data='f|123|ru')],
+        text="_ no_help_needed", callback_data='f|123|ru')],
 ]
 
 SELECT_FROM_KEYBOARD = [
@@ -52,7 +52,7 @@ async def test_start():
         randint_mock.return_value = 1000
         await handler.start(message_mock, make_lingvo_data(), make_analytics_mock(), AsyncMock())
     then_answer(
-        message_mock, "_ welcome Joss", WELCOME_KEYBOARD)
+        message_mock, "_ welcome pairs Joss", WELCOME_KEYBOARD)
 
 
 async def test_welcome():

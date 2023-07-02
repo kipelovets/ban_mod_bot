@@ -59,7 +59,7 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     user = chat_member.new_chat_member.user
     logger.info("welcome %s chat %s", user.id, chat_member.chat.id)
     analytics.chat_member(user.id)
-    text = lingvo_data.messages.welcome_choose_popular_pairs(format_name(user))
+    text = lingvo_data.messages.welcome_to_chat(format_name(user), DEFAULT_LANGUAGE)
     keyboard = format_welcome_message_keyboard(
         user.id,
         lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),

@@ -27,7 +27,10 @@ def given_messages() -> Messages:
         "button_next_translator": {UA: "Следующий переводчик"},
         "next_translator": {UA: NEXT_TRANSLATOR_MSG},
         "button_finish": {UA: "_ button finish"},
-        "welcome_choose_popular_pairs": {RU: "_ welcome {username}"}
+        "welcome_choose_popular_pairs": {RU: "_ welcome pairs {username}"},
+        "other_languages": {RU: "_ other_languages"},
+        "no_help_needed": {RU: "_ no_help_needed"},
+        "welcome_to_chat": {RU: "_ welcome {username}"},
     })
 
 
