@@ -8,8 +8,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.analytics import Analytics
 from bot.handlers.gc import GC
 from bot.handlers.utils import (
+    RestartCallbackData,
     TranslatorCallbackData,
     extract_kwargs,
+    format_finish_keyboard,
     format_from_language_keyboard,
     format_name,
     format_welcome_message_keyboard,
@@ -49,6 +51,33 @@ async def start(message: types.Message,
 
 
 @extract_kwargs("lingvo_data", "analytics", "gc")
+@router.callback_query(RestartCallbackData.filter(), F.chat.type.in_({"private"}))
+async def restart(call: types.CallbackQuery,
+                  callback_data: RestartCallbackData,
+                  lingvo_data: LingvoData,
+                  analytics: Analytics,
+                  gc: GC):
+    if call.message is None:
+        logger.error("restart without message %s", call.id)
+        return
+    user_id = callback_data.user_id
+    if user_id not in (call.from_user.id, SUPER_ADMIN):
+        logger.warning("restart %s wrong user %s", user_id, call.from_user.id)
+        await call.answer(lingvo_data.messages.can_not_reply_to_foreign_message())
+        return
+    logger.info("restart %s", call.from_user.id)
+    analytics.restart(call.from_user.id)
+    keyboard = format_start_message_keyboard(
+        call.from_user.id,
+        lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
+        lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
+    await call.message.edit_text(
+        lingvo_data.messages.welcome_choose_popular_pairs(format_name(call.from_user)),
+        reply_markup=keyboard)
+    await gc.add_to_queue(call.message.chat.id, call.message.message_id, MESSAGE_REMOVE_TIMEOUT)
+
+
+@extract_kwargs("lingvo_data", "analytics", "gc")
 @router.chat_member()
 async def welcome(chat_member: types.ChatMemberUpdated,
                   lingvo_data: LingvoData,
@@ -77,7 +106,7 @@ async def finish(call: types.CallbackQuery,
                  lingvo_data: LingvoData,
                  analytics: Analytics):
     if call.message is None:
-        logger.error("callback without message %s", call.id)
+        logger.error("finish without message %s", call.id)
         return
     user_id = callback_data.user_id
     if user_id not in (call.from_user.id, SUPER_ADMIN):
@@ -88,7 +117,8 @@ async def finish(call: types.CallbackQuery,
     analytics.finish(user_id)
     await call.message.edit_text(
         lingvo_data.messages.finished(from_lang),
-        reply_markup=None)
+        reply_markup=format_finish_keyboard(user_id, callback_data.from_lang or "",
+                                            lingvo_data.messages.restart(from_lang)))
 
 
 @extract_kwargs("lingvo_data", "analytics")

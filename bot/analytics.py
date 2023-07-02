@@ -19,6 +19,9 @@ class Analytics:
     def start(self, user_id: int):
         self._event("start", user_id=str(user_id))
 
+    def restart(self, user_id: int):
+        self._event("restart", user_id=str(user_id))
+
     def finish(self, user_id: int):
         self._event("finish", user_id=str(user_id))
 

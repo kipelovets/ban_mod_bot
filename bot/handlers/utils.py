@@ -23,6 +23,11 @@ class FinishCallbackData(CallbackData, prefix="f", sep="|"):
     from_lang: Optional[str]
 
 
+class RestartCallbackData(CallbackData, prefix="r", sep="|"):
+    user_id: int
+    from_lang: Optional[str]
+
+
 class TranslatorCallbackData(CallbackData, prefix="t", sep="|"):
     user_id: int
     from_lang: str
@@ -87,6 +92,17 @@ def format_welcome_message_keyboard(
     builder = InlineKeyboardBuilder()
     builder.button(text=button_text, url=lingvo_bot_url)
     builder.button(text=button_voice, url=moova_bot_url)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def format_finish_keyboard(
+        user_id: int,
+        from_lang: str,
+        button_restart: str) -> types.InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=button_restart,
+                   callback_data=RestartCallbackData(user_id=user_id, from_lang=from_lang))
     builder.adjust(1)
     return builder.as_markup()
 

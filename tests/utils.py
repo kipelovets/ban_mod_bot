@@ -33,6 +33,8 @@ def given_messages() -> Messages:
         "welcome_to_chat": {RU: "_ welcome {username}"},
         "find_text_translator": {RU: "_ find_text_translator"},
         "find_voice_translator": {RU: "_ find_voice_translator"},
+        "finished": {RU: "_ finished", UA: "_ UA finished"},
+        "restart": {RU: "_ restart", UA: "_ UA restart"},
     })
 
 

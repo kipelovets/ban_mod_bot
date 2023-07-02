@@ -69,6 +69,9 @@ class Messages:
     def find_voice_translator(self, from_lang: str) -> str:
         return self._t("find_voice_translator", from_lang)
 
+    def restart(self, from_lang: str) -> str:
+        return self._t("restart", from_lang)
+
     def _t(self, key: str, from_lang: str) -> str:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")

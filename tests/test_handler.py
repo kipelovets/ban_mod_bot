@@ -4,7 +4,8 @@ from aiogram import types
 
 import bot.handlers.handlers as handler
 from bot.lingvo_data import LingvoData
-from bot.handlers.utils import TranslatorCallbackData, make_cb
+from bot.handlers.utils import FinishCallbackData, RestartCallbackData, TranslatorCallbackData, \
+    make_cb
 from bot.timer import Timer
 from .utils import given_messages, given_user, \
     given_new_chat_member, given_callback_query, ID, \
@@ -181,3 +182,25 @@ async def test_select_translator_clicked_by_another_user():
     call.answer.assert_called_once_with(
         "Вы не можете отвечать на чужое сообщение!")
     call.message.edit_text.assert_not_called()
+
+
+async def test_finish():
+    call = given_callback_query()
+    await handler.finish(call, FinishCallbackData(user_id=ID, from_lang="ua"),
+                         make_lingvo_data(), make_analytics_mock())
+    then_message_edited(call.message, "_ UA finished", [
+        [
+            types.InlineKeyboardButton(
+                text="_ UA restart", callback_data="r|123|ua"),
+        ]
+    ])
+
+
+async def test_restart():
+    call = given_callback_query()
+    with patch('random.randint') as randint_mock:
+        randint_mock.return_value = 1000
+        await handler.restart(call, RestartCallbackData(user_id=ID, from_lang="ua"),
+                              make_lingvo_data(), make_analytics_mock(), AsyncMock())
+    then_message_edited(
+        call.message, "_ welcome pairs Joss", WELCOME_KEYBOARD)
