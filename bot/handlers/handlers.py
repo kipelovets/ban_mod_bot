@@ -48,7 +48,7 @@ async def start(message: types.Message,
 
 
 @extract_kwargs("lingvo_data", "analytics")
-@router.callback_query(RestartCallbackData.filter(), F.chat.type.in_({"private"}))
+@router.callback_query(RestartCallbackData.filter(), F.message.chat.type.in_({"private"}))
 async def restart(call: types.CallbackQuery,
                   callback_data: RestartCallbackData,
                   lingvo_data: LingvoData,
