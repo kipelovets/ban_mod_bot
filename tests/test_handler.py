@@ -51,7 +51,7 @@ async def test_start():
 
     with patch('random.randint') as randint_mock:
         randint_mock.return_value = 1000
-        await handler.start(message_mock, make_lingvo_data(), make_analytics_mock(), AsyncMock())
+        await handler.start(message_mock, make_lingvo_data(), make_analytics_mock())
     then_answer(
         message_mock, "_ welcome pairs Joss", WELCOME_KEYBOARD)
 
@@ -63,8 +63,7 @@ async def test_welcome():
         await handler.welcome(chat_member_mock,
                               make_lingvo_data(),
                               chat_member_mock.bot,
-                              make_analytics_mock(),
-                              AsyncMock())
+                              make_analytics_mock())
     expected_keyboard = [
         [types.InlineKeyboardButton(
             text="_ find_text_translator", url="https://t.me/lingvo_catalogue_bot")],
@@ -83,8 +82,7 @@ async def test_welcome_member_left():
     await handler.welcome(chat_member_mock,
                           make_lingvo_data(),
                           chat_member_mock.bot,
-                          make_analytics_mock(),
-                          AsyncMock())
+                          make_analytics_mock())
     chat_member_mock.bot.send_message.assert_not_called()
 
 
@@ -201,6 +199,6 @@ async def test_restart():
     with patch('random.randint') as randint_mock:
         randint_mock.return_value = 1000
         await handler.restart(call, RestartCallbackData(user_id=ID, from_lang="ua"),
-                              make_lingvo_data(), make_analytics_mock(), AsyncMock())
+                              make_lingvo_data(), make_analytics_mock())
     then_message_edited(
         call.message, "_ welcome pairs Joss", WELCOME_KEYBOARD)

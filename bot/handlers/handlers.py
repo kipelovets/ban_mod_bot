@@ -6,7 +6,6 @@ from aiogram import types, Router, Bot, F
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.analytics import Analytics
-from bot.handlers.gc import GC
 from bot.handlers.utils import (
     RestartCallbackData,
     TranslatorCallbackData,
@@ -29,12 +28,11 @@ SUPER_ADMIN = int(os.getenv('SUPER_ADMIN', ""))
 MESSAGE_REMOVE_TIMEOUT = 60 * 60
 
 
-@extract_kwargs("lingvo_data", "analytics", "gc")
+@extract_kwargs("lingvo_data", "analytics")
 @router.message(Command('start'), F.chat.type.in_({"private"}))
 async def start(message: types.Message,
                 lingvo_data: LingvoData,
-                analytics: Analytics,
-                gc: GC):
+                analytics: Analytics):
     if message.from_user is None:
         logger.error("message without from_user %s", message.message_id)
         return
@@ -44,19 +42,17 @@ async def start(message: types.Message,
         message.from_user.id,
         lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
         lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
-    sent_message = await message.answer(
+    await message.answer(
         lingvo_data.messages.welcome_choose_popular_pairs(format_name(message.from_user)),
         reply_markup=keyboard)
-    await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
-@extract_kwargs("lingvo_data", "analytics", "gc")
+@extract_kwargs("lingvo_data", "analytics")
 @router.callback_query(RestartCallbackData.filter(), F.chat.type.in_({"private"}))
 async def restart(call: types.CallbackQuery,
                   callback_data: RestartCallbackData,
                   lingvo_data: LingvoData,
-                  analytics: Analytics,
-                  gc: GC):
+                  analytics: Analytics):
     if call.message is None:
         logger.error("restart without message %s", call.id)
         return
@@ -74,16 +70,14 @@ async def restart(call: types.CallbackQuery,
     await call.message.edit_text(
         lingvo_data.messages.welcome_choose_popular_pairs(format_name(call.from_user)),
         reply_markup=keyboard)
-    await gc.add_to_queue(call.message.chat.id, call.message.message_id, MESSAGE_REMOVE_TIMEOUT)
 
 
-@extract_kwargs("lingvo_data", "analytics", "gc")
+@extract_kwargs("lingvo_data", "analytics")
 @router.chat_member()
 async def welcome(chat_member: types.ChatMemberUpdated,
                   lingvo_data: LingvoData,
                   bot: Bot,
-                  analytics: Analytics,
-                  gc: GC):
+                  analytics: Analytics):
     if chat_member.new_chat_member.status != 'member':
         return
     user = chat_member.new_chat_member.user
@@ -93,10 +87,9 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     keyboard = format_welcome_message_keyboard(
         lingvo_data.messages.find_text_translator(DEFAULT_LANGUAGE),
         lingvo_data.messages.find_voice_translator(DEFAULT_LANGUAGE))
-    sent_message = await bot.send_message(chat_member.chat.id,
-                                          text,
-                                          reply_markup=keyboard)
-    await gc.add_to_queue(sent_message.chat.id, sent_message.message_id, MESSAGE_REMOVE_TIMEOUT)
+    await bot.send_message(chat_member.chat.id,
+                           text,
+                           reply_markup=keyboard)
 
 
 @extract_kwargs("lingvo_data", "analytics")
