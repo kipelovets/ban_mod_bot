@@ -64,9 +64,16 @@ async def test_welcome():
                               chat_member_mock.bot,
                               make_analytics_mock(),
                               AsyncMock())
+    expected_keyboard = [
+        [types.InlineKeyboardButton(
+            text="_ find_text_translator", url="https://t.me/lingvo_catalogue_bot")],
+        [types.InlineKeyboardButton(
+            text="_ find_voice_translator", url="https://t.me/moovaBot")],
+    ]
+
     then_message_sent(chat_member_mock.bot, chat_member_mock.chat.id,
                       '_ welcome Joss',
-                      WELCOME_KEYBOARD)
+                      expected_keyboard)
 
 
 async def test_welcome_member_left():

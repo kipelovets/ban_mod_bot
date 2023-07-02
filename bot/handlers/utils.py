@@ -8,6 +8,8 @@ from aiogram.filters.callback_data import CallbackData
 from bot.language import code_by_lang, UA, RU, popular_pairs
 
 from_languages = [UA, RU]
+lingvo_bot_url = "https://t.me/lingvo_catalogue_bot"
+moova_bot_url = "https://t.me/moovaBot"
 
 
 class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
@@ -59,9 +61,9 @@ def make_seed() -> int:
     return random.randint(0, 99999)
 
 
-def format_welcome_message_keyboard(user_id: int,
-                                    button_other: str,
-                                    button_no: str) -> types.InlineKeyboardMarkup:
+def format_start_message_keyboard(user_id: int,
+                                  button_other: str,
+                                  button_no: str) -> types.InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     seed = make_seed()
     for pair, languages in popular_pairs.items():
@@ -75,6 +77,16 @@ def format_welcome_message_keyboard(user_id: int,
     builder.button(text=button_no,
                    callback_data=FinishCallbackData(user_id=user_id,
                                                     from_lang=code_by_lang(RU)))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def format_welcome_message_keyboard(
+        button_text: str,
+        button_voice: str) -> types.InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=button_text, url=lingvo_bot_url)
+    builder.button(text=button_voice, url=moova_bot_url)
     builder.adjust(1)
     return builder.as_markup()
 

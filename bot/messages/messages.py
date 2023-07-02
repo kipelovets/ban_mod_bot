@@ -63,6 +63,12 @@ class Messages:
     def welcome_to_chat(self, username: str, from_lang: str) -> str:
         return self._t("welcome_to_chat", from_lang).format(username=username)
 
+    def find_text_translator(self, from_lang: str) -> str:
+        return self._t("find_text_translator", from_lang)
+
+    def find_voice_translator(self, from_lang: str) -> str:
+        return self._t("find_voice_translator", from_lang)
+
     def _t(self, key: str, from_lang: str) -> str:
         if key not in self.translations or from_lang not in self.translations[key]:
             raise KeyError(f"Translation not found: '{key}', '{from_lang}'")

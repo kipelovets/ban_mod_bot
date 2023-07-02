@@ -12,8 +12,9 @@ from bot.handlers.utils import (
     extract_kwargs,
     format_from_language_keyboard,
     format_name,
-    make_cb,
     format_welcome_message_keyboard,
+    make_cb,
+    format_start_message_keyboard,
     make_seed)
 from bot.language import DEFAULT_LANGUAGE, code_by_lang, lang_by_code, prettify_lang, languages
 from bot.lingvo_data import LingvoData
@@ -37,7 +38,7 @@ async def start(message: types.Message,
         return
     logger.info("start %s", message.from_user.id)
     analytics.start(message.from_user.id)
-    keyboard = format_welcome_message_keyboard(
+    keyboard = format_start_message_keyboard(
         message.from_user.id,
         lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
         lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
@@ -61,9 +62,8 @@ async def welcome(chat_member: types.ChatMemberUpdated,
     analytics.chat_member(user.id)
     text = lingvo_data.messages.welcome_to_chat(format_name(user), DEFAULT_LANGUAGE)
     keyboard = format_welcome_message_keyboard(
-        user.id,
-        lingvo_data.messages.other_languages(DEFAULT_LANGUAGE),
-        lingvo_data.messages.no_help_needed(DEFAULT_LANGUAGE))
+        lingvo_data.messages.find_text_translator(DEFAULT_LANGUAGE),
+        lingvo_data.messages.find_voice_translator(DEFAULT_LANGUAGE))
     sent_message = await bot.send_message(chat_member.chat.id,
                                           text,
                                           reply_markup=keyboard)

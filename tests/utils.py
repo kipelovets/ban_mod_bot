@@ -31,6 +31,8 @@ def given_messages() -> Messages:
         "other_languages": {RU: "_ other_languages"},
         "no_help_needed": {RU: "_ no_help_needed"},
         "welcome_to_chat": {RU: "_ welcome {username}"},
+        "find_text_translator": {RU: "_ find_text_translator"},
+        "find_voice_translator": {RU: "_ find_voice_translator"},
     })
 
 
@@ -87,6 +89,8 @@ def then_inline_keyboard(markup: Mock,
                 f"Button {expected_button.text} != {button.text}"
             assert expected_button.callback_data == button.callback_data, \
                 f"Data {expected_button.callback_data} != {button.callback_data}"
+            assert expected_button.url == button.url, \
+                f"URL {expected_button.url} != {button.url}"
 
 
 def then_message_sent(bot_mock: AsyncMock, chat_id: AsyncMock, expected_message: str,
