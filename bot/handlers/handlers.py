@@ -7,6 +7,7 @@ from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.analytics import Analytics
 from bot.handlers.utils import (
+    ADMIN_URL,
     RestartCallbackData,
     TranslatorCallbackData,
     extract_kwargs,
@@ -252,6 +253,8 @@ async def select_translator(call: types.CallbackQuery,
                    callback_data=make_cb(
         call.from_user.id,
         from_lang))
+    builder.button(text=lingvo_data.messages.contact_admin(from_lang),
+                   url=ADMIN_URL)
     builder.adjust(1)
 
     message = lingvo_data.messages.next_translator(username, from_lang, to_lang, translator)

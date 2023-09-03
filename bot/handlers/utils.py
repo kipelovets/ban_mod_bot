@@ -8,8 +8,9 @@ from aiogram.filters.callback_data import CallbackData
 from bot.language import code_by_lang, UA, RU, popular_pairs
 
 from_languages = [UA, RU]
-lingvo_bot_url = "https://t.me/lingvo_catalogue_bot"
-moova_bot_url = "https://t.me/moovaBot"
+LINGVO_BOT_URL = "https://t.me/lingvo_catalogue_bot"
+MOOVA_BOT_URL = "https://t.me/moovaBot"
+ADMIN_URL = "https://t.me/kipelovets"
 
 
 class LingvoCallbackData(CallbackData, prefix="l", sep="|"):
@@ -90,8 +91,8 @@ def format_welcome_message_keyboard(
         button_text: str,
         button_voice: str) -> types.InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text=button_text, url=lingvo_bot_url)
-    builder.button(text=button_voice, url=moova_bot_url)
+    builder.button(text=button_text, url=LINGVO_BOT_URL)
+    builder.button(text=button_voice, url=MOOVA_BOT_URL)
     builder.adjust(1)
     return builder.as_markup()
 
